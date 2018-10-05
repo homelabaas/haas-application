@@ -1,0 +1,80 @@
+version: "3.7"
+services:
+  homelabaas:
+    image: homelabaas/haas-application
+    networks:
+      - infra_traefik
+    configs:
+      - source: homelabaas_config
+        target: /workspace/config/production.json
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - "traefik.port=3000"
+        - "traefik.docker.network=infra_traefik"
+        - "traefik.frontend.rule=Host:homelabaas.mysite.com"
+  seq:
+    image: datalust/seq
+    environment:
+      - ACCEPT_EULA=Y
+    networks:
+      - infra_traefik
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - "traefik.port=80"
+        - "traefik.docker.network=infra_traefik"
+        - "traefik.frontend.rule=Host:seq.mysite.com"
+  minio:
+    image: minio/minio
+    networks:
+      - infra_traefik
+    volumes:
+      - minio_data:/data
+      - minio_config:/root/.minio
+    environment:
+      MINIO_ACCESS_KEY: XXXXXXXXXXXXXXXXXXXX
+      MINIO_SECRET_KEY: ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+    command: [ "server", "/data"]
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - "traefik.port=9000"
+        - "traefik.docker.network=infra_traefik"
+        - "traefik.frontend.rule=Host:minio.mysite.com"
+  postgres:
+    image: postgres
+    networks:
+      - infra_traefik
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    ports:
+      - target: 5432
+        published: 5432
+    environment:
+      POSTGRES_PASSWORD: devpostgrespwd
+    deploy:
+      mode: replicated
+      replicas: 1
+networks:
+  infra_traefik:
+    external: true
+volumes:
+  minio_data:
+    driver: vsphere
+    driver_opts:
+      size: 5Gb
+  minio_config:
+    driver: vsphere
+    driver_opts:
+      size: 1Gb
+  postgres_data:
+    driver: vsphere
+    driver_opts:
+      size: 1Gb
+configs:
+  homelabaas_config:
+    file: ./prod_config.json

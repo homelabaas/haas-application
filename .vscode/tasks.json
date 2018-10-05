@@ -1,0 +1,23 @@
+{
+    "version": "0.1.0",
+    "command": "npm",
+    "isShellCommand": true,
+    "showOutput": "always",
+    "suppressTaskName": true,
+    "tasks": [
+        {
+            "taskName": "dev:build",
+            "args": [
+                "run",
+                "dev:build"
+            ]
+        },
+        {
+            "taskName": "watch",
+            "args": [
+                "run",
+                "watch"
+            ]
+        }
+    ]
+}

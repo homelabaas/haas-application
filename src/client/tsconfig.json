@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "module": "commonjs",
+        "lib": ["es6", "dom"],
+        "target": "es6",
+        "jsx": "react",
+        "moduleResolution": "node",
+        "typeRoots": [
+            "../../node_modules/@types"
+        ]
+    },
+    "exclude": [
+        "node_modules",
+        "build"
+    ]
+}

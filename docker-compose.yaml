@@ -1,0 +1,27 @@
+version: "3.3"
+
+services:
+  seq:
+    container_name: seq
+    image: datalust/seq
+    ports:
+      - "8085:80"
+      - "5341:5341"
+    environment:
+      - ACCEPT_EULA=Y
+  minio:
+    container_name: minio
+    image: minio/minio
+    ports:
+      - "9000:9000"
+    volumes:
+      - "./minio/data:/data"
+      - "./minio/config:/root/.minio"
+    command: [ "server", "/data"]
+  postgres:
+    container_name: postgres
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: devpostgrespwd

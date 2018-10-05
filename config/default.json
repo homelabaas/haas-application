@@ -1,0 +1,30 @@
+{
+    "Database": {
+        "Host": "localhost",
+        "Port": 5432,
+        "DbName": "homelabdevops",
+        "Username": "postgres",
+        "Password": "devpostgrespwd"
+    },
+    "Docker": {
+        "ConnectionType":"socket",
+        "Socket" : "/var/run/docker.sock"
+    },
+    "Containers": {
+        "Packer":"homelabaas/helper-packer-vsphere"
+    },
+    "Minio": {
+        "URL":"localhost",
+        "Secure":false,
+        "AccessKey":"XXXXXXXXXXXXXXXXXXXX",
+        "SecretKey":"ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "ContentBucket":"build",
+        "Port":9000
+    },
+    "Logfiles": {
+        "AccessFilename": "access.log",
+        "AccessLogFormat": "[:date[clf]] :id :status :method :url :response-time",
+        "SeqUrl":"http://localhost:5341"
+    },
+    "Port": 3000
+}

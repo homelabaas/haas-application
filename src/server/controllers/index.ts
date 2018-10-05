@@ -1,0 +1,41 @@
+import { Application } from "express";
+import * as routeConstants from "./../../common/routeDefinitions";
+import { ArtifactsController } from "./artifacts";
+import { BuildController } from "./build";
+import { BuildConfigController } from "./buildconfig";
+import { BuildTypeController } from "./buildtype";
+import { ContentController } from "./content";
+import { DnsController } from "./dns";
+import { EnvironmentController } from "./environment";
+import { EnvironmentSettingController } from "./environmentSetting";
+import { HomeController } from "./home";
+import { NetworkSegmentController } from "./networksegment";
+import { PhoneHomeController } from "./phonehome";
+import { ProvisionEnvironmentController } from "./provisionEnvironment";
+import { SettingsController } from "./settings";
+import { SGController } from "./sg";
+import { StatusController } from "./status";
+import { VMController } from "./vm";
+import { VMSpecController } from "./vmspec";
+import { VmwareController } from "./vmware";
+
+export function registerRoutes(app: Application): void {
+    app.use(routeConstants.SettingsRouteUrl, SettingsController);
+    app.use(routeConstants.VmwareRouteUrl, VmwareController);
+    app.use(routeConstants.BuildRouteUrl, BuildController);
+    app.use(routeConstants.BuildTypeRouteUrl, BuildTypeController);
+    app.use(routeConstants.BuildConfigRouteUrl, BuildConfigController);
+    app.use(routeConstants.StatusRouteUrl, StatusController);
+    app.use(routeConstants.ArtifactsUrl, ArtifactsController);
+    app.use(routeConstants.PhoneHomeUrl, PhoneHomeController);
+    app.use(routeConstants.EnvironmentUrl, EnvironmentController);
+    app.use(routeConstants.EnvironmentSettingUrl, EnvironmentSettingController);
+    app.use(routeConstants.DnsUrl, DnsController);
+    app.use(routeConstants.ContentUrl, ContentController);
+    app.use(routeConstants.ProvisionEnvironmentUrl, ProvisionEnvironmentController);
+    app.use(routeConstants.NetworkSegmentUrl, NetworkSegmentController);
+    app.use(routeConstants.VMSpecUrl, VMSpecController);
+    app.use(routeConstants.VMUrl, VMController);
+    app.use(routeConstants.SGUrl, SGController);
+    app.use("/*", HomeController);
+}
