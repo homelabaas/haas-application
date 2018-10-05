@@ -68,7 +68,7 @@ typings/
 
 build/**/*
 src/server/vmwarelibs/**/*
-minio/**/*
+data/**/*
 config/local.json
 rethinkdb/**/*
 .cache-loader

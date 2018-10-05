@@ -15,13 +15,15 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - "./minio/data:/data"
-      - "./minio/config:/root/.minio"
+      - "./data/minio/data:/data"
+      - "./data/minio/config:/root/.minio"
     command: [ "server", "/data"]
   postgres:
     container_name: postgres
     image: postgres
     ports:
       - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql
     environment:
       POSTGRES_PASSWORD: devpostgrespwd
