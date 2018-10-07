@@ -8,11 +8,13 @@ import { TextField } from "./TextField";
 import { IVCenterSettings } from "../../../common/models/IVcenterSettings";
 import { IPowerDnsSettings } from "../../../common/models/IPowerDnsSettings";
 import { IApplicationSettings } from "../../../common/models/IApplicationSettings";
+import { IMinioSettingsPost } from "../../../common/models/IMinioSettingsPost";
 
 interface ISettingsPageState {
     vcenterSettings: IVCenterSettings;
     powerDnsSettings: IPowerDnsSettings;
     applicationSettings: IApplicationSettings;
+    minioSettings: IMinioSettingsPost;
     vcenterIsConnected: boolean;
     vcentermessageState: string;
     vcentermessage: string;
@@ -20,6 +22,8 @@ interface ISettingsPageState {
     powerdnsmessage: string;
     applicationmessageState: string;
     applicationmessage: string;
+    miniomessageState: string;
+    miniomessage: string;
 }
 
 class SettingsPageComponent extends React.Component<{}, ISettingsPageState> {
@@ -41,13 +45,21 @@ class SettingsPageComponent extends React.Component<{}, ISettingsPageState> {
             applicationSettings: {
                 URL: ""
             },
+            minioSettings: {
+                AccessKey: "",
+                ContentBucket: "",
+                SecretKey: "",
+                URL: ""
+            },
             vcenterIsConnected: false,
             vcentermessageState: "",
             vcentermessage: "",
             powerdnsmessageState: "",
             powerdnsmessage: "",
             applicationmessageState: "",
-            applicationmessage: ""
+            applicationmessage: "",
+            miniomessageState: "",
+            miniomessage: ""
         };
     }
 
@@ -56,11 +68,13 @@ class SettingsPageComponent extends React.Component<{}, ISettingsPageState> {
         const vcenterSettings = await api.getVCenterSettings();
         const powerDnsSettings = await api.getPowerDnsSettings();
         const applicationSettings = await api.getApplicationSettings();
+        const minioSettings = await api.getMinioSettings();
         this.setState({
             vcenterIsConnected: apiStatus.VcenterConnected,
             vcenterSettings,
             powerDnsSettings,
-            applicationSettings
+            applicationSettings,
+            minioSettings
         });
     }
 
@@ -82,9 +96,24 @@ class SettingsPageComponent extends React.Component<{}, ISettingsPageState> {
         }
     }
 
+    public clickSaveMinio = async (event: React.MouseEvent<HTMLElement>) => {
+        const minioSettingsToSend = {...this.state.minioSettings};
+        const returnStatus = await api.postMinioSettings(this.state.minioSettings);
+        if (returnStatus.Success) {
+            this.setState({
+                miniomessage: "Successfully connected to Power DNS.",
+                miniomessageState: "ok"
+            });
+        } else {
+            this.setState({
+                miniomessage: returnStatus.Message,
+                miniomessageState: "error"
+            });
+        }
+    }
+
     public clickSavePowerDns = async (event: React.MouseEvent<HTMLElement>) => {
         const returnStatus = await api.postPowerDnsSettings(this.state.powerDnsSettings);
-        // based on return status we want to display the message positive/negative
         if (returnStatus.Success) {
             this.setState({
                 powerdnsmessage: "Successfully connected to Power DNS.",
@@ -186,6 +215,38 @@ class SettingsPageComponent extends React.Component<{}, ISettingsPageState> {
         });
     }
 
+    public handleMinioUrlChange = (event: any) => {
+        const newMinioSettings = {...this.state.minioSettings};
+        newMinioSettings.URL = event.target.value;
+        this.setState({
+            minioSettings: newMinioSettings
+        });
+    }
+
+    public handleMinioAccessKeyChange = (event: any) => {
+        const newMinioSettings = {...this.state.minioSettings};
+        newMinioSettings.AccessKey = event.target.value;
+        this.setState({
+            minioSettings: newMinioSettings
+        });
+    }
+
+    public handleMinioSecretKeyChange = (event: any) => {
+        const newMinioSettings = {...this.state.minioSettings};
+        newMinioSettings.SecretKey = event.target.value;
+        this.setState({
+            minioSettings: newMinioSettings
+        });
+    }
+
+    public handleMinioBucketChange = (event: any) => {
+        const newMinioSettings = {...this.state.minioSettings};
+        newMinioSettings.ContentBucket = event.target.value;
+        this.setState({
+            minioSettings: newMinioSettings
+        });
+    }
+
     public render() {
         return (
             <div>
@@ -248,6 +309,32 @@ class SettingsPageComponent extends React.Component<{}, ISettingsPageState> {
                     <Button onClick={this.clickSavePowerDns}>Save</Button>
                     <MessageDisplay messageState={this.state.powerdnsmessageState}
                         message={this.state.powerdnsmessage} />
+                </Form>                <br />
+                <Form>
+                    <h4 className="ui dividing header">Minio</h4>
+                    <div>
+                        <Input label="URL" value={this.state.minioSettings.URL}
+                            onChange={this.handleMinioUrlChange} placeholder="URL" />
+                    </div>
+                    <br />
+                    <div>
+                        <Input label="Access Key" value={this.state.minioSettings.AccessKey}
+                            onChange={this.handleMinioAccessKeyChange} placeholder="Access Key" />
+                    </div>
+                    <br />
+                    <div>
+                        <Input label="Secret Key" value={this.state.minioSettings.SecretKey}
+                            onChange={this.handleMinioSecretKeyChange} placeholder="Secret Key" />
+                    </div>
+                    <br />
+                    <div>
+                        <Input label="Content Bucket" value={this.state.minioSettings.ContentBucket}
+                            onChange={this.handleMinioBucketChange} placeholder="Bucket Name" />
+                    </div>
+                    <br />
+                    <Button onClick={this.clickSaveMinio}>Save</Button>
+                    <MessageDisplay messageState={this.state.miniomessageState}
+                        message={this.state.miniomessage} />
                 </Form>
             </div>
         );

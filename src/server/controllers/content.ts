@@ -8,11 +8,15 @@ const router: Router = Router();
 router.get("/", async (req: Request, res: Response) => {
     // pass in ID as querystring
     try {
-        const id = req.query.id;
-        const bucket = Dependencies().MinioConfig.ContentBucket;
-        const content = await Dependencies().Minio.GetMinioFile(bucket, id);
-        const returnContent: IContent = { content, id };
-        res.json(returnContent);
+        if (Dependencies().ServerStatus.MinioConnected) {
+            const id = req.query.id;
+            const bucket = Dependencies().Settings.MinioSettings.ContentBucket;
+            const content = await Dependencies().Minio.GetMinioFile(bucket, id);
+            const returnContent: IContent = { content, id };
+            res.json(returnContent);
+        } else {
+            throw Error("Minio is currently not connected.");
+        }
     } catch (err) {
         const returnValue: IGenericReturn = {
             Success: false,

@@ -2,6 +2,7 @@ import * as axios from "axios";
 import { IApplicationSettings } from "../../common/models/IApplicationSettings";
 import { IBuildOutputLine } from "../../common/models/IBuildOutputLine";
 import { IEnvironment } from "../../common/models/IEnvironment";
+import { IMinioSettingsPost } from "../../common/models/IMinioSettingsPost";
 import { INetworkSegment } from "../../common/models/INetworkSegment";
 import { IScalingGroup } from "../../common/models/IScalingGroup";
 import { IVirtualMachine } from "../../common/models/IVirtualMachine";
@@ -40,6 +41,16 @@ export const getVCenterSettings = async (): Promise<IVCenterSettings> => {
 export const getPowerDnsSettings = async (): Promise<IPowerDnsSettings> => {
     const returnValue = await axios.default.get(routeConstants.SettingsRouteUrl + "/powerdns");
     return returnValue.data as IPowerDnsSettings;
+};
+
+export const getMinioSettings = async (): Promise<IMinioSettingsPost> => {
+    const returnValue = await axios.default.get(routeConstants.SettingsRouteUrl + "/minio");
+    return returnValue.data as IMinioSettingsPost;
+};
+
+export const postMinioSettings = async (settings: IMinioSettingsPost) => {
+    const returnValue = await axios.default.post(routeConstants.SettingsRouteUrl + "/minio", settings);
+    return returnValue.data as IGenericReturn;
 };
 
 export const getApplicationSettings = async (): Promise<IApplicationSettings> => {

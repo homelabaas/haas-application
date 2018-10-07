@@ -1,6 +1,7 @@
 import * as bunyan from "bunyan";
+import { IMinioSettings } from "../../common/models/IMinioSettings";
 import { VirtualMachineStatus } from "../../common/models/VirtualMachineStatus";
-import { Dependencies, IMinioConfig } from "../dependencyManager";
+import { Dependencies } from "../dependencyManager";
 import { SocketManager } from "../socketio/socketManager";
 import { PostgresStore } from "./../data/postgresStore";
 import { VmManager } from "./vmManager";
@@ -10,12 +11,12 @@ export class VmProvisionMonitor {
     private KeepRunning: boolean;
     private Logger: bunyan;
     private SocketManager: SocketManager;
-    private MinioConfig: IMinioConfig;
+    private MinioConfig: IMinioSettings;
 
     constructor(postgresStore: PostgresStore,
                 socketManager: SocketManager,
                 logger: bunyan,
-                minioConfig: IMinioConfig) {
+                minioConfig: IMinioSettings) {
         this.KeepRunning = true;
         this.PostgresStore = postgresStore;
         this.Logger = logger;

@@ -13,14 +13,6 @@
     "Containers": {
         "Packer":"homelabaas/helper-packer-vsphere"
     },
-    "Minio": {
-        "URL":"localhost",
-        "Secure":false,
-        "AccessKey":"XXXXXXXXXXXXXXXXXXXX",
-        "SecretKey":"ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
-        "ContentBucket":"build",
-        "Port":9000
-    },
     "Logfiles": {
         "AccessFilename": "access.log",
         "AccessLogFormat": "[:date[clf]] :id :status :method :url :response-time",

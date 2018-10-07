@@ -6,19 +6,6 @@ This is a web application which can manage the building and provisioning of VMs 
 
 Documentation is very early days, but can be viewed at <http://homelabaas-website.s3-website-ap-southeast-2.amazonaws.com/>.
 
-## Services
-
-This application uses a lot of other tech to achieve a small subset of services similar to cloud tools like OpenStack, AWS, Azure and the Google Cloud.
-
-* VM Builds - Automate the build of VMs with easy set up and run, using packer and targeting vcenter. Output of builds is tracked and managed, to make consumption of the output easy for provisioning and other builds.
-* VM Provisioning - Using cloud-init on top of linux, allow for quick, flexible and easy provisioning and configuration of linux machines. Uses the output of the VM builds for the base VM images.
-* DNS - Integration with DNS tool, PowerDNS, to automate the creation of DNS records. Similar to Route53.
-* Load Balancing - Designed for the express purpose of load balancing across docker containers, not a general load balancing solution. Similar to ALBs.
-* Scaling Groups - All the creation of a collection of similar servers via a Scaling Group. Scaling groups can be easily resized to grow or shrink the collection as required, ideally quickly. Similar to an AWS autoscaling group but more simple.
-* Environment creation - Using a declarative syntac, deploy a set of Scaling Groups using a particular configuration. Similar to CloudFormation. Also provide the ability to deploy a swarm stack into a docker swarm environment.
-* Networking - Allow automatic static IP assignment from a pool of IPs, and to also assist in management of DNS entries.
-* Storage - Using minio, provide s3-like storage.
-
 ## Known issues & workarounds
 
 No known issues.
@@ -139,17 +126,3 @@ will ensure it won't overwrite your development database.
 
 Keep in mind, the API testing mode does not have a web GUI. The test suite just hits all the API endpoints
 to make sure they are performing correctly.
-
-## Using Homelab VM Builder
-
-First step is to put some content into Minio to use with the application. Clone the following repo: https://github.com/homelabaas/haas-content and copy it into the build bucker in minio.
-
-Second step is to get some VMs building. You can use the `/contents/packer/ubuntu1804iso/` named "Ubuntu 18.04 ISO Install" builder to create a base Ubuntu box, against the VMWare host, network and datastore of your choice.
-
-Once this is built, you can use the output of that build to feed into the builder "Ubuntu 18.04 Docker" which creates a VM template which has docker installed, but also cloud-init. The means you can provision this box with the "Provision" screen as it will accept a cloud-init file for boot time configuration.
-
-When you create a new machine from the output of the "Ubuntu 18.04 Docker" box, select the "Standard Docker Machine" user data file and load it.
-
-From one of these machines, you can then deploy straight docker containers. Use one of these machines and the docker-compose file in `/deployment-compose/powerdns/docker-compose.yml` to create a PowerDNS box.
-
-For a docker swarm environment, use the environment provision screen and paste in the contents of `/environments/docker-swarm/environment.yaml`. Make sure the IP address settings are fine. This will provision a collection of servers, with a master and worker nodes, running as a swarm.

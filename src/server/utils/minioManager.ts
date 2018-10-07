@@ -1,18 +1,18 @@
 import * as yaml from "js-yaml";
 import { BucketItem, Client } from "minio";
+import { IMinioSettings } from "../../common/models/IMinioSettings";
 import { IBuildType } from "./../../common/models/IBuildType";
-import { IMinioConfig } from "./../dependencyManager";
 import { MinioArrayWriteStream } from "./minioArrayWriteStream";
 
 export class MinioManager {
 
     public MinioClient: Client;
 
-    constructor(config: IMinioConfig) {
+    constructor(config: IMinioSettings) {
         this.MinioClient = new Client({
-                endPoint: config.URL,
-                port: config.Port,
-                secure: config.Secure,
+                endPoint: config.Address,
+                port: +config.Port,
+                secure: (config.Secure === "true"),
                 accessKey: config.AccessKey,
                 secretKey: config.SecretKey
             });

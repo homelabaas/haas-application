@@ -1,10 +1,11 @@
 import * as btoa from "btoa";
 import * as bunyan from "bunyan";
 import * as ip from "ip";
+import { IMinioSettings } from "../../common/models/IMinioSettings";
 import { VirtualMachineStatus } from "../../common/models/VirtualMachineStatus";
 import VirtualMachine from "../data/models/VirtualMachine";
 import { PostgresStore } from "../data/postgresStore";
-import { Dependencies, IMinioConfig } from "../dependencyManager";
+import { Dependencies } from "../dependencyManager";
 import { SocketManager } from "../socketio/socketManager";
 import { IGuestinfoConfigSetting } from "../vmware/IGuestinfoConfigSetting";
 import { NetworkConfiguration } from "./networkConfiguration";
@@ -27,7 +28,7 @@ export class VmManager {
     }
 
     public Provision = async (targetFolder: string, targetDatastore: string, phoneHomeUrl: string,
-                              minioConfig: IMinioConfig) => {
+                              minioConfig: IMinioSettings) => {
         try {
             const vm = await this.PostgresStore.GetVM(this.VmId);
             this.NetworkSegmentId = vm.NetworkSegmentId;
@@ -53,7 +54,7 @@ export class VmManager {
                 { key: "guestinfo.cloudconfig.userdata", value: vm.UserDataAsBase64 },
                 { key: "guestinfo.cloudconfig.networkconfig", value: btoa(networkConfig.yaml) },
                 { key: "guestinfo.cloudconfig.builderurl", value: phoneHomeUrl},
-                { key: "guestinfo.minio.address", value: "http://" + minioConfig.URL + ":"
+                { key: "guestinfo.minio.address", value: "http://" + minioConfig.Address + ":"
                     + minioConfig.Port },
                 { key: "guestinfo.minio.accesskey", value: minioConfig.AccessKey },
                 { key: "guestinfo.minio.secretkey", value: minioConfig.SecretKey },

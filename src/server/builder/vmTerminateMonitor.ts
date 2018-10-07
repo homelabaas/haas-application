@@ -1,6 +1,5 @@
 import * as bunyan from "bunyan";
 import { VirtualMachineStatus } from "../../common/models/VirtualMachineStatus";
-import { IMinioConfig } from "../dependencyManager";
 import { SocketManager } from "../socketio/socketManager";
 import { PostgresStore } from "./../data/postgresStore";
 import { VmManager } from "./vmManager";
@@ -13,8 +12,7 @@ export class VmTerminateMonitor {
 
     constructor(postgresStore: PostgresStore,
                 socketManager: SocketManager,
-                logger: bunyan,
-                minioConfig: IMinioConfig) {
+                logger: bunyan) {
         this.KeepRunning = true;
         this.PostgresStore = postgresStore;
         this.Logger = logger;

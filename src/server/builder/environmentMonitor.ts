@@ -2,11 +2,11 @@ import * as btoa from "btoa";
 import * as bunyan from "bunyan";
 import { EnvironmentStatus } from "../../common/models/EnvironmentStatus";
 import { IEnvironment } from "../../common/models/IEnvironment";
+import { IMinioSettings } from "../../common/models/IMinioSettings";
 import { IScalingGroup } from "../../common/models/IScalingGroup";
 import { ScalingGroupStatus } from "../../common/models/ScalingGroupStatus";
 import { VirtualMachineStatus } from "../../common/models/VirtualMachineStatus";
 import { FindLastArtifactForBuildConfig } from "../data/artifacts";
-import { IMinioConfig } from "../dependencyManager";
 import { SocketManager } from "../socketio/socketManager";
 import { MinioManager } from "../utils/minioManager";
 import { PostgresStore } from "./../data/postgresStore";
@@ -17,12 +17,12 @@ export class EnvironmentMonitor {
     private Logger: bunyan;
     private SocketManager: SocketManager;
     private MinioManager: MinioManager;
-    private MinioConfig: IMinioConfig;
+    private MinioConfig: IMinioSettings;
 
     constructor(postgresStore: PostgresStore,
                 socketManager: SocketManager,
                 minioManager: MinioManager,
-                minioConfig: IMinioConfig,
+                minioConfig: IMinioSettings,
                 logger: bunyan) {
         this.KeepRunning = true;
         this.PostgresStore = postgresStore;

@@ -3,9 +3,10 @@ import * as seq from "bunyan-seq";
 import * as config from "config";
 import * as Docker from "dockerode";
 import * as path from "path";
+import { IMinioSettings } from "../../common/models/IMinioSettings";
 import { FindLastArtifactForBuildConfig } from "../data/artifacts";
 import Artifact from "../data/models/Artifact";
-import { Dependencies, IMinioConfig } from "../dependencyManager";
+import { Dependencies } from "../dependencyManager";
 import { isTestApiMode } from "../runtimeModes";
 import { SocketManager } from "../socketio/socketManager";
 import { DbAppendStderrStream } from "../utils/DbAppendStderrStream";
@@ -30,7 +31,7 @@ export class BuildThread {
     private LogFolder: string;
     private Containers: IBuildContainerDefinition[];
     private AuthConfig: IDockerAuth;
-    private MinioConfig: IMinioConfig;
+    private MinioConfig: IMinioSettings;
     private SocketManager: SocketManager;
     private DockerSocket: string;
 
@@ -39,7 +40,7 @@ export class BuildThread {
                 logFolder: string,
                 containers: IBuildContainerDefinition[],
                 authConfig: IDockerAuth,
-                minioConfig: IMinioConfig,
+                minioConfig: IMinioSettings,
                 socketManager: SocketManager,
                 dockerSocket: string) {
         this.Docker = docker;
@@ -82,6 +83,9 @@ export class BuildThread {
             vmName = vmName + "-" + buildConfig.LastBuildNumber.toString();
         }
         const folder = path.dirname(buildType.Id);
+        const minioUrl = this.MinioConfig.Secure ?
+            `MINIO_URL=https://${this.MinioConfig.Address}:${this.MinioConfig.Port}` :
+            `MINIO_URL=http://${this.MinioConfig.Address}:${this.MinioConfig.Port}`;
         const envSettings = [
             `USERNAME=${Dependencies().Settings.VCenterSettings.Username}`,
             `PASSWORD=${Dependencies().Settings.VCenterSettings.Password}`,
@@ -95,6 +99,7 @@ export class BuildThread {
             `BUCKET=${this.MinioConfig.ContentBucket}`,
             `MINIO_ACCESS_KEY=${this.MinioConfig.AccessKey}`,
             `MINIO_SECRET_KEY=${this.MinioConfig.SecretKey}`,
+            `MINIO_URL=${minioUrl}`,
             `BUILDFOLDER=${folder}`,
             `PACKERJSONFILE=${buildType.File}`,
             `FOLDER=${Dependencies().Settings.VCenterSettings.DefaultFolder}`

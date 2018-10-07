@@ -4,6 +4,7 @@ import * as Docker from "dockerode";
 import * as http from "http";
 import * as pg from "pg";
 import { IApplicationSettings } from "../common/models/IApplicationSettings";
+import { IMinioSettings } from "../common/models/IMinioSettings";
 import { IPowerDnsSettings } from "../common/models/IPowerDnsSettings";
 import { IStatus } from "../common/models/IStatus";
 import { IVCenterSettings } from "../common/models/IVcenterSettings";
@@ -28,6 +29,7 @@ export interface ISettings {
     VCenterSettings?: IVCenterSettings;
     PowerDnsSettings?: IPowerDnsSettings;
     ApplicationSettings?: IApplicationSettings;
+    MinioSettings?: IMinioSettings;
 }
 
 export interface IDockerAuth {
@@ -36,17 +38,10 @@ export interface IDockerAuth {
     serveraddress: string;
 }
 
-export interface IMinioConfig {
-    URL: string;
-    AccessKey: string;
-    SecretKey: string;
-    ContentBucket: string;
-    Port: number;
-    Secure: boolean;
-}
 const VCenterSettingsKey: string = "vcenter";
 const PowerDNSSettingsKey: string = "powerdns";
 const ApplicationSettingsKey: string = "application";
+const MinioSettingsKey: string = "minio";
 
 class DependencyManager {
 
@@ -64,7 +59,6 @@ class DependencyManager {
     public Logger: bunyan;
     public DockerAuth: IDockerAuth;
     public Minio: MinioManager;
-    public MinioConfig: IMinioConfig;
     public PowerDNS: IPowerDNS;
     public SgMonitor: SgMonitor;
     public FirstRun: boolean;
@@ -101,11 +95,14 @@ class DependencyManager {
         if (this.ServerStatus.PostgresConnected) {
             const vcenterSettings = await this.PostgresStore.GetSettings(VCenterSettingsKey) as IVCenterSettings;
             const powerDnsSettings = await this.PostgresStore.GetSettings(PowerDNSSettingsKey) as IPowerDnsSettings;
-            const applicationSettings = await this.PostgresStore.GetSettings(ApplicationSettingsKey) as IApplicationSettings;
+            const applicationSettings = await
+                this.PostgresStore.GetSettings(ApplicationSettingsKey) as IApplicationSettings;
+            const minioSettings = await this.PostgresStore.GetSettings(MinioSettingsKey) as IMinioSettings;
             this.Settings = {
                 VCenterSettings: vcenterSettings,
                 PowerDnsSettings: powerDnsSettings,
-                ApplicationSettings: applicationSettings
+                ApplicationSettings: applicationSettings,
+                MinioSettings: minioSettings
             };
             if (vcenterSettings) {
                 await this.InitVCenter(vcenterSettings);
@@ -113,10 +110,12 @@ class DependencyManager {
             if (powerDnsSettings) {
                 await this.InitPowerDNS(powerDnsSettings);
             }
+            if (minioSettings) {
+                await this.InitMinio(minioSettings);
+            }
         }
 
         this.SocketManager.Initialize();
-        await this.InitMinio();
         await this.InitDocker();
         await this.InitBuilder();
         await this.InitManagers();
@@ -140,18 +139,8 @@ class DependencyManager {
         }
     }
 
-    public ValidatePowerDnsSettings = async (powerDnsSettings: IPowerDnsSettings) => {
-        let powerDnsAttempt: IPowerDNS;
-        if (isTestApiMode) {
-            powerDnsAttempt = new FakePowerdns(powerDnsSettings.Url, powerDnsSettings.APIKey);
-        } else {
-            powerDnsAttempt = new PowerDNS(powerDnsSettings.Url, powerDnsSettings.APIKey);
-        }
-        // Attempt to call power dns.
-        await powerDnsAttempt.getZones();
-        // If successful, keep the sttings.
-        this.PowerDNS = powerDnsAttempt;
-        this.ServerStatus.PowerDNS = true;
+    public SetMinioSettings = async (minioSettings: IMinioSettings) => {
+        this.Settings.MinioSettings = minioSettings;
     }
 
     public SetPowerDnsSettings = async (powerDnsSettings: IPowerDnsSettings) => {
@@ -166,6 +155,50 @@ class DependencyManager {
         return this.ServerStatus;
     }
 
+    public InitPowerDNS = async (powerDnsSettings: IPowerDnsSettings, rethrowException: boolean = false) => {
+        try {
+            if (isTestApiMode) {
+                this.PowerDNS = new FakePowerdns(powerDnsSettings.Url, powerDnsSettings.APIKey);
+            } else {
+                this.PowerDNS = new PowerDNS(powerDnsSettings.Url, powerDnsSettings.APIKey);
+            }
+            const zoneList = await this.PowerDNS.getZones();
+            this.ServerStatus.PowerDNS = true;
+        } catch (err) {
+            this.Logger.error("Error connecting to PowerDNS.");
+            this.Logger.error(err);
+            this.ServerStatus.PowerDNS = false;
+            if (rethrowException) {
+                throw err;
+            }
+        }
+    }
+
+    public InitMinio = async (minioSettings: IMinioSettings, rethrowException: boolean = false) => {
+        try {
+            this.Minio = new MinioManager(minioSettings);
+            this.ServerStatus.MinioConnected = true;
+            const bucketOk = await this.Minio.MinioClient.bucketExists(this.Settings.MinioSettings.ContentBucket);
+            this.Logger.info("Successfully connected to minio.");
+            if (bucketOk) {
+                this.ServerStatus.MinioBucketExists = true;
+                this.Logger.info(
+                    `Minio bucket ${this.Settings.MinioSettings.ContentBucket} exists. Loading .builder.yml files.`);
+                await this.ReloadBuilderYamlFiles();
+            } else {
+                this.Logger.error(`Minio bucket ${this.Settings.MinioSettings.ContentBucket} does not exist.`);
+                this.ServerStatus.MinioBucketExists = false;
+            }
+        } catch (err) {
+            this.Logger.error("Error connecting to minio.");
+            this.Logger.error(err);
+            this.ServerStatus.MinioConnected = false;
+            if (rethrowException) {
+                throw err;
+            }
+        }
+    }
+
     private InitBuilder = async () => {
         this.ServerStatus.BuilderThreadRunning = false;
         const containers = config.get<IBuildContainerDefinition[]>("Containers");
@@ -176,7 +209,7 @@ class DependencyManager {
                 this.LogFolder,
                 containers,
                 this.DockerAuth,
-                this.MinioConfig,
+                this.Settings.MinioSettings,
                 this.SocketManager,
                 config.get<string>("Docker.Socket"));
             this.ServerStatus.BuilderThreadRunning = true;
@@ -192,7 +225,7 @@ class DependencyManager {
                 this.PostgresStore,
                 this.SocketManager,
                 this.Logger,
-                this.MinioConfig
+                this.Settings.MinioSettings
             );
             this.ServerStatus.VmProvisionManager = true;
             setTimeout(() => { this.VmProvisionMonitor.Run(); }, 10000);
@@ -202,8 +235,7 @@ class DependencyManager {
               this.VmTerminateMonitor = new VmTerminateMonitor(
                   this.PostgresStore,
                   this.SocketManager,
-                  this.Logger,
-                  this.MinioConfig
+                  this.Logger
               );
               setTimeout(() => { this.VmTerminateMonitor.Run(); }, 11000);
         }
@@ -221,7 +253,7 @@ class DependencyManager {
                   this.PostgresStore,
                   this.SocketManager,
                   this.Minio,
-                  this.MinioConfig,
+                  this.Settings.MinioSettings,
                   this.Logger
               );
               setTimeout(() => { this.EnvironmentMonitor.Run(); }, 13000);
@@ -253,8 +285,26 @@ class DependencyManager {
         } catch (err) {
             this.ServerStatus.PostgresConnected = false;
             this.Logger.error("Error connecting to postgres.");
-            this.Logger.error(err.message);
             this.Logger.error(err);
+        }
+    }
+
+    private CheckDockerAuth = async () => {
+        if (config.has("Docker.AuthUsername") && config.has("Docker.AuthPassword")
+          && config.has("Docker.AuthRegistry")) {
+            try {
+                this.DockerAuth = {
+                    username: config.get<string>("Docker.AuthUsername"),
+                    password: config.get<string>("Docker.AuthPassword"),
+                    serveraddress: config.get<string>("Docker.AuthRegistry"),
+                };
+                const authAttempt = await this.Docker.checkAuth(this.DockerAuth);
+                this.ServerStatus.DockerRegistryAuth = true;
+            } catch (e) {
+                this.ServerStatus.DockerRegistryAuth = false;
+            }
+        } else {
+            this.Logger.info("No docker registry authentication specified. Not attempting to validate.");
         }
     }
 
@@ -267,87 +317,22 @@ class DependencyManager {
             if (config.get<string>("Docker.ConnectionType") === "socket") {
                 const socket = config.get<string>("Docker.Socket");
                 this.Docker = new Docker({ socketPath: socket });
-                // Run list containers to make sure docker is actually working
-                const dockerList = await this.Docker.listContainers();
-                this.ServerStatus.DockerConnected = true;
-                this.DockerAuth = {
-                    username: config.get<string>("Docker.AuthUsername"),
-                    password: config.get<string>("Docker.AuthPassword"),
-                    serveraddress: config.get<string>("Docker.AuthRegistry"),
-                };
-                const authAttempt = await this.Docker.checkAuth(this.DockerAuth);
-                this.ServerStatus.DockerRegistryAuth = true;
             } else if (config.get<string>("Docker.ConnectionType") === "http") {
                 const dockerHost = config.get<string>("Docker.Host");
                 const dockerPort = config.get<number>("Docker.Port");
                 this.Docker = new Docker({ host: dockerHost, port: dockerPort });
-                // Run list containers to make sure docker is actually working
-                const dockerList = await this.Docker.listContainers();
-                this.ServerStatus.DockerConnected = true;
-                this.DockerAuth = {
-                    username: config.get<string>("Docker.AuthUsername"),
-                    password: config.get<string>("Docker.AuthPassword"),
-                    serveraddress: config.get<string>("Docker.AuthRegistry"),
-                };
-                const authAttempt = await this.Docker.checkAuth(this.DockerAuth);
-                this.ServerStatus.DockerRegistryAuth = true;
             }
+            const dockerList = await this.Docker.listContainers();
+            this.ServerStatus.DockerConnected = true;
+            await this.CheckDockerAuth();
         } catch (err) {
-            this.Logger.error("Error connecting to docker. Build thread will not run.");
-            this.Logger.error(err.message);
+            this.Logger.error("Error connecting to docker.");
             this.Logger.error(err);
-        }
-    }
-
-    private InitPowerDNS = async (powerDnsSettings: IPowerDnsSettings) => {
-        try {
-            if (isTestApiMode) {
-                this.PowerDNS = new FakePowerdns(powerDnsSettings.Url, powerDnsSettings.APIKey);
-            } else {
-                this.PowerDNS = new PowerDNS(powerDnsSettings.Url, powerDnsSettings.APIKey);
-            }
-            const zoneList = await this.PowerDNS.getZones();
-            this.ServerStatus.PowerDNS = true;
-        } catch (err) {
-            this.Logger.error("Error connecting to PowerDNS.");
-            this.Logger.error(err.message);
-            this.Logger.error(err);
-            this.ServerStatus.PowerDNS = false;
-        }
-    }
-
-    private InitMinio = async () => {
-        this.MinioConfig = {
-            URL: config.get<string>("Minio.URL"),
-            AccessKey: config.get<string>("Minio.AccessKey"),
-            SecretKey: config.get<string>("Minio.SecretKey"),
-            ContentBucket: config.get<string>("Minio.ContentBucket"),
-            Port: config.get<number>("Minio.Port"),
-            Secure: config.get<boolean>("Minio.Secure")
-        };
-        try {
-            this.Minio = new MinioManager(this.MinioConfig);
-            this.ServerStatus.MinioConnected = true;
-            this.Logger.info("Successfully connected to minio.");
-            const bucketOk = await this.Minio.MinioClient.bucketExists(this.MinioConfig.ContentBucket);
-            if (bucketOk) {
-                this.ServerStatus.MinioBucketExists = true;
-                this.Logger.info(`Minio bucket ${this.MinioConfig.ContentBucket} exists. Loading .builder.yml files.`);
-                await this.ReloadBuilderYamlFiles();
-            } else {
-                this.Logger.error(`Minio bucket ${this.MinioConfig.ContentBucket} does not exist.`);
-                this.ServerStatus.MinioBucketExists = false;
-            }
-        } catch (err) {
-            this.Logger.error("Error connecting to minio.");
-            this.Logger.error(err.message);
-            this.Logger.error(err);
-            this.ServerStatus.MinioConnected = false;
         }
     }
 
     private ReloadBuilderYamlFiles = async () => {
-        const buildTypes = await this.Minio.GetMinioBuildTypes(this.MinioConfig.ContentBucket);
+        const buildTypes = await this.Minio.GetMinioBuildTypes(this.Settings.MinioSettings.ContentBucket);
         await this.PostgresStore.SaveBuildTypes(buildTypes);
         this.Logger.info("Loaded contents of minio bucket. Total items loaded: "
             + buildTypes.length.toString());
@@ -359,12 +344,16 @@ class DependencyManager {
             // relog back in every 30 minutes as the session will expire
             setInterval(async () => {
                 try {
-                    await this.VCenter.Disconnect();
+                    try {
+                        await this.VCenter.Disconnect();
+                    } catch (e) {
+                        // We can ignore errors when disconnecting.
+                        this.Logger.warn(e);
+                    }
                     await this.VCenter.Connect(settings.URL, settings.Username, settings.Password);
                     this.ServerStatus.VcenterConnected = true;
                 } catch (e) {
                     this.Logger.error("Error re-logging back into vcenter.");
-                    this.Logger.error(e.message);
                     this.Logger.error(e);
                     this.ServerStatus.VcenterConnected = false;
                 }
@@ -372,7 +361,6 @@ class DependencyManager {
             this.ServerStatus.VcenterConnected = true;
         } catch (err) {
             this.Logger.error("Error connecting to vcenter.");
-            this.Logger.error(err.message);
             this.Logger.error(err);
             this.ServerStatus.VcenterConnected = false;
         }
