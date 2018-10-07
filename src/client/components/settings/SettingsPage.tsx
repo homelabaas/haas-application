@@ -97,11 +97,10 @@ class SettingsPageComponent extends React.Component<{}, ISettingsPageState> {
     }
 
     public clickSaveMinio = async (event: React.MouseEvent<HTMLElement>) => {
-        const minioSettingsToSend = {...this.state.minioSettings};
         const returnStatus = await api.postMinioSettings(this.state.minioSettings);
         if (returnStatus.Success) {
             this.setState({
-                miniomessage: "Successfully connected to Power DNS.",
+                miniomessage: "Successfully connected to Minio.",
                 miniomessageState: "ok"
             });
         } else {
