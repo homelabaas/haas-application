@@ -22,7 +22,10 @@ class StatusPageComponent extends React.Component<{}, IStatusPageState> {
                 BuilderThreadRunning: false,
                 PowerDNS: false,
                 PostgresConnected: false,
-                VmProvisionManager: false
+                VmProvisionManager: false,
+                EnvironmentManager: false,
+                SgManager: false,
+                VmTerminateManager: false
             }
         };
     }
@@ -45,16 +48,20 @@ class StatusPageComponent extends React.Component<{}, IStatusPageState> {
     public render() {
         return (
             <div className="row">
-                <h2>Status Page</h2>
+                <h2>Dependencies</h2>
                 <p>Postgres: <this.HealthDisplay isOK={this.state.status.PostgresConnected} /></p>
                 <p>Docker: <this.HealthDisplay isOK={this.state.status.DockerConnected} /></p>
-                <p>Docker Registry: <this.HealthDisplay isOK={this.state.status.DockerRegistryAuth} /></p>
+                <p>Docker Registry (optional): <this.HealthDisplay isOK={this.state.status.DockerRegistryAuth} /></p>
                 <p>VCenter: <this.HealthDisplay isOK={this.state.status.VcenterConnected} /></p>
                 <p>Minio: <this.HealthDisplay isOK={this.state.status.MinioConnected} /></p>
-                <p>Minio Bucket: <this.HealthDisplay isOK={this.state.status.MinioBucketExists} /></p>
+                <p>Minio Content Bucket: <this.HealthDisplay isOK={this.state.status.MinioBucketExists} /></p>
                 <p>PowerDNS: <this.HealthDisplay isOK={this.state.status.PowerDNS} /></p>
-                <p>Builder Thread: <this.HealthDisplay isOK={this.state.status.BuilderThreadRunning} /></p>
+                <h2>Background Monitors</h2>
+                <p>VM Builder: <this.HealthDisplay isOK={this.state.status.BuilderThreadRunning} /></p>
                 <p>VM Provisioner: <this.HealthDisplay isOK={this.state.status.VmProvisionManager} /></p>
+                <p>VM Terminator: <this.HealthDisplay isOK={this.state.status.VmTerminateManager} /></p>
+                <p>Scaling Group Manager: <this.HealthDisplay isOK={this.state.status.SgManager} /></p>
+                <p>Environment Manager: <this.HealthDisplay isOK={this.state.status.EnvironmentManager} /></p>
             </div>
         );
     }

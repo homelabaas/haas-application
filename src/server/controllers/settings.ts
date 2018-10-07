@@ -72,6 +72,7 @@ router.post("/minio", async (req: Request, res: Response) => {
         await Dependencies().PostgresStore.SetSettings("minio", saveSettings);
         await Dependencies().SetMinioSettings(saveSettings);
         await Dependencies().InitMinio(saveSettings, true);
+        await Dependencies().InitManagers();
         const returnValue: IGenericReturn = {
             Success: true,
             Message: "Validated"
@@ -131,6 +132,7 @@ router.post("/vcenter", async (req: Request, res: Response) => {
     try {
         await Dependencies().ConnectVcenter(postSettings);
         await Dependencies().PostgresStore.SetSettings("vcenter", postSettings);
+        await Dependencies().InitManagers();
         const returnValue: IGenericReturn = {
             Success: true,
             Message: "Validated"

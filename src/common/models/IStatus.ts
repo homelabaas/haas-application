@@ -8,4 +8,7 @@ export interface IStatus {
     BuilderThreadRunning: boolean;
     PostgresConnected: boolean;
     VmProvisionManager: boolean;
+    VmTerminateManager: boolean;
+    SgManager: boolean;
+    EnvironmentManager: boolean;
 }

@@ -79,7 +79,10 @@ class DependencyManager {
             BuilderThreadRunning: false,
             PowerDNS: false,
             PostgresConnected: false,
-            VmProvisionManager: false
+            VmProvisionManager: false,
+            VmTerminateManager: false,
+            SgManager: false,
+            EnvironmentManager: false
         };
         this.Settings = {};
         this.PostgresStore = new PostgresStore();
@@ -117,7 +120,6 @@ class DependencyManager {
 
         this.SocketManager.Initialize();
         await this.InitDocker();
-        await this.InitBuilder();
         await this.InitManagers();
     }
 
@@ -199,64 +201,68 @@ class DependencyManager {
         }
     }
 
-    private InitBuilder = async () => {
-        this.ServerStatus.BuilderThreadRunning = false;
-        const containers = config.get<IBuildContainerDefinition[]>("Containers");
-        if (this.ServerStatus.DockerConnected && this.ServerStatus.MinioConnected &&
-            this.ServerStatus.PostgresConnected) {
-            this.BuildThread = new BuildThread(this.Docker,
-                this.PostgresStore,
-                this.LogFolder,
-                containers,
-                this.DockerAuth,
-                this.Settings.MinioSettings,
-                this.SocketManager,
-                config.get<string>("Docker.Socket"));
-            this.ServerStatus.BuilderThreadRunning = true;
-            setTimeout(() => { this.BuildThread.Run(); }, 10000);
-        }
-    }
-
-    private InitManagers = async () => {
-        this.ServerStatus.VmProvisionManager = false;
+    public InitManagers = async () => {
         if (this.ServerStatus.MinioConnected && this.ServerStatus.PostgresConnected
           && this.ServerStatus.VcenterConnected) {
-            this.VmProvisionMonitor = new VmProvisionMonitor(
-                this.PostgresStore,
-                this.SocketManager,
-                this.Logger,
-                this.Settings.MinioSettings
-            );
-            this.ServerStatus.VmProvisionManager = true;
-            setTimeout(() => { this.VmProvisionMonitor.Run(); }, 10000);
-        }
-        if (this.ServerStatus.MinioConnected && this.ServerStatus.PostgresConnected
-            && this.ServerStatus.VcenterConnected) {
-              this.VmTerminateMonitor = new VmTerminateMonitor(
-                  this.PostgresStore,
-                  this.SocketManager,
-                  this.Logger
-              );
-              setTimeout(() => { this.VmTerminateMonitor.Run(); }, 11000);
-        }
-        if (this.ServerStatus.PostgresConnected
-            && this.ServerStatus.VcenterConnected) {
-              this.SgMonitor = new SgMonitor(
-                  this.PostgresStore,
-                  this.SocketManager,
-                  this.Logger
-              );
-              setTimeout(() => { this.SgMonitor.Run(); }, 12000);
-        }
-        if (this.ServerStatus.MinioConnected && this.ServerStatus.PostgresConnected) {
-              this.EnvironmentMonitor = new EnvironmentMonitor(
-                  this.PostgresStore,
-                  this.SocketManager,
-                  this.Minio,
-                  this.Settings.MinioSettings,
-                  this.Logger
-              );
-              setTimeout(() => { this.EnvironmentMonitor.Run(); }, 13000);
+            if (!this.ServerStatus.VmProvisionManager) {
+                this.VmProvisionMonitor = new VmProvisionMonitor(
+                    this.PostgresStore,
+                    this.SocketManager,
+                    this.Logger,
+                    this.Settings.MinioSettings
+                );
+                this.ServerStatus.VmProvisionManager = true;
+                setTimeout(() => { this.VmProvisionMonitor.Run(); }, 10000);
+                this.Logger.info("VM Provision Manager polling every 10 seconds.");
+            }
+            if (!this.ServerStatus.VmTerminateManager) {
+                this.VmTerminateMonitor = new VmTerminateMonitor(
+                    this.PostgresStore,
+                    this.SocketManager,
+                    this.Logger
+                );
+                setTimeout(() => { this.VmTerminateMonitor.Run(); }, 11000);
+                this.ServerStatus.VmTerminateManager = true;
+                this.Logger.info("VM Termination Manager polling every 11 seconds.");
+            }
+            if (!this.ServerStatus.SgManager) {
+                this.SgMonitor = new SgMonitor(
+                    this.PostgresStore,
+                    this.SocketManager,
+                    this.Logger
+                );
+                setTimeout(() => { this.SgMonitor.Run(); }, 12000);
+                this.ServerStatus.SgManager = true;
+                this.Logger.info("Scaling Group Manager polling every 12 seconds.");
+            }
+            if (!this.ServerStatus.EnvironmentManager) {
+                this.EnvironmentMonitor = new EnvironmentMonitor(
+                    this.PostgresStore,
+                    this.SocketManager,
+                    this.Minio,
+                    this.Settings.MinioSettings,
+                    this.Logger
+                );
+                setTimeout(() => { this.EnvironmentMonitor.Run(); }, 13000);
+                this.ServerStatus.EnvironmentManager = true;
+                this.Logger.info("Environment Manager polling every 13 seconds.");
+            }
+            if (!this.ServerStatus.BuilderThreadRunning) {
+                if (this.ServerStatus.DockerConnected) {
+                    const containers = config.get<IBuildContainerDefinition[]>("Containers");
+                    this.BuildThread = new BuildThread(this.Docker,
+                        this.PostgresStore,
+                        this.LogFolder,
+                        containers,
+                        this.DockerAuth,
+                        this.Settings.MinioSettings,
+                        this.SocketManager,
+                        config.get<string>("Docker.Socket"));
+                    this.ServerStatus.BuilderThreadRunning = true;
+                    setTimeout(() => { this.BuildThread.Run(); }, 10000);
+                    this.Logger.info("VM Builder polling every 10 seconds.");
+                }
+            }
         }
     }
 
