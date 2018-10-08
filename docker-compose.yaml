@@ -16,7 +16,7 @@ services:
       - "9000:9000"
     volumes:
       - "./data/minio/data:/data"
-      - "./data/minio/config:/root/.minio"
+      - "./config/minio:/root/.minio"
     command: [ "server", "/data"]
   postgres:
     container_name: postgres

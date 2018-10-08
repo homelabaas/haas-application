@@ -16,6 +16,7 @@ export const NetworkSegmentUrl = "/api/networksegment";
 export const VMSpecUrl = "/api/vmspec";
 export const VMUrl = "/api/vm";
 export const SGUrl = "/api/sg";
+export const MinioWebhookUrl = "/api/miniowebhook";
 
 export function editBuildConfigPageUrl(id: number) { return `/buildconfigedit/${id}`; }
 export function buildConfigPageUrl(id: number) { return `/buildconfig/${id}`; }

@@ -379,6 +379,22 @@ export class PostgresStore {
         return builderDefinition;
     }
 
+    public DeleteBuildType = async (filePath: string) => {
+        const buildTypeToDelete = await BuilderDefinition.findById(filePath);
+        await buildTypeToDelete.destroy();
+    }
+
+    public InsertOrUpdateBuildType = async (buildType: IBuildType) => {
+        BuilderDefinition.insertOrUpdate({
+            Id: buildType.Id,
+            File: buildType.File,
+            Name: buildType.Name,
+            Type: buildType.Type,
+            Feature: buildType.Feature || null,
+            Requirement: buildType.Requirement
+        });
+    }
+
     public SaveBuildTypes = async (buildTypes: IBuildType[]) => {
         const currentBuildTypes = await BuilderDefinition.findAll();
         const insertNewBuildTypes: any[] = [];
