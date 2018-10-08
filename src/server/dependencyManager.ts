@@ -180,6 +180,7 @@ class DependencyManager {
         try {
             this.Minio = new MinioManager(minioSettings, this.PostgresStore,
                 this.Logger, this.Settings.MinioSettings.ContentBucket);
+            await this.Minio.SetUpEventRegistration();
             this.ServerStatus.MinioConnected = true;
             const bucketOk = await this.Minio.MinioClient.bucketExists(this.Settings.MinioSettings.ContentBucket);
             this.Logger.info("Successfully connected to minio.");
