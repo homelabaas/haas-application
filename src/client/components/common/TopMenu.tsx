@@ -19,24 +19,24 @@ const TopMenuComponent: React.StatelessComponent<{}> = (props) => {
             </Link>
             <Dropdown item simple text="Build">
                 <Dropdown.Menu>
-                    <Dropdown.Item><Link to="/">Builds</Link></Dropdown.Item>
-                    <Dropdown.Item><Link to="/buildconfig">Configs</Link></Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/">Builds</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/buildconfig">Configs</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
             <Dropdown item simple text="Compute">
                 <Dropdown.Menu>
-                    <Dropdown.Item><Link to="/vm">VMs</Link></Dropdown.Item>
-                    <Dropdown.Item><Link to="/scalinggroup">Scaling Groups</Link></Dropdown.Item>
-                    <Dropdown.Item><Link to="/environment">Environments</Link></Dropdown.Item>
-                    <Dropdown.Item><Link to="/vmspec">VM Specs</Link></Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/vm">VMs</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/scalinggroup">Scaling Groups</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/environment">Environments</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/vmspec">VM Specs</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
-            <Menu.Item><Link to="/network">Network</Link></Menu.Item>
-            <Menu.Item><Link to="/storage">Storage</Link></Menu.Item>
+            <Menu.Item as={Link} to="/network">Network</Menu.Item>
+            <Menu.Item as={Link} to="/storage">Storage</Menu.Item>
             <Dropdown item simple text="Admin">
                 <Dropdown.Menu>
-                    <Dropdown.Item><Link to="/settings">Settings</Link></Dropdown.Item>
-                    <Dropdown.Item><Link to="/status">Status</Link></Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/settings">Settings</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/status">Status</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
         </Container>
