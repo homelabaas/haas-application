@@ -1,0 +1,28 @@
+{
+	"version": "25",
+	"credential": {
+		"accessKey": "testaccesskey",
+		"secretKey": "testsecretkey"
+	},
+	"region": "",
+	"browser": "on",
+	"worm": "off",
+	"domain": "",
+	"storageclass": {
+		"standard": "",
+		"rrs": ""
+	},
+	"cache": {
+		"drives": [],
+		"expiry": 90,
+		"exclude": []
+	},
+	"notify": {
+		"webhook": {
+			"1": {
+				"enable": true,
+				"endpoint": "http://host.docker.internal:3000/api/miniowebhook"
+			}
+		}
+	}
+}

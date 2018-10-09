@@ -178,7 +178,9 @@ class DependencyManager {
 
     public InitMinio = async (minioSettings: IMinioSettings, rethrowException: boolean = false) => {
         try {
-            this.Minio = new MinioManager(minioSettings);
+            this.Minio = new MinioManager(minioSettings, this.PostgresStore,
+                this.Logger, this.Settings.MinioSettings.ContentBucket);
+            await this.Minio.SetUpEventRegistration();
             this.ServerStatus.MinioConnected = true;
             const bucketOk = await this.Minio.MinioClient.bucketExists(this.Settings.MinioSettings.ContentBucket);
             this.Logger.info("Successfully connected to minio.");
@@ -186,7 +188,7 @@ class DependencyManager {
                 this.ServerStatus.MinioBucketExists = true;
                 this.Logger.info(
                     `Minio bucket ${this.Settings.MinioSettings.ContentBucket} exists. Loading .builder.yml files.`);
-                await this.ReloadBuilderYamlFiles();
+                await this.Minio.ReloadBuilderYamlFiles();
             } else {
                 this.Logger.error(`Minio bucket ${this.Settings.MinioSettings.ContentBucket} does not exist.`);
                 this.ServerStatus.MinioBucketExists = false;
@@ -335,13 +337,6 @@ class DependencyManager {
             this.Logger.error("Error connecting to docker.");
             this.Logger.error(err);
         }
-    }
-
-    private ReloadBuilderYamlFiles = async () => {
-        const buildTypes = await this.Minio.GetMinioBuildTypes(this.Settings.MinioSettings.ContentBucket);
-        await this.PostgresStore.SaveBuildTypes(buildTypes);
-        this.Logger.info("Loaded contents of minio bucket. Total items loaded: "
-            + buildTypes.length.toString());
     }
 
     private InitVCenter = async (settings: IVCenterSettings) => {

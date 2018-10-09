@@ -9,6 +9,7 @@ import { DnsController } from "./dns";
 import { EnvironmentController } from "./environment";
 import { EnvironmentSettingController } from "./environmentSetting";
 import { HomeController } from "./home";
+import { MinioWebhookController } from "./miniowebhook";
 import { NetworkSegmentController } from "./networksegment";
 import { PhoneHomeController } from "./phonehome";
 import { ProvisionEnvironmentController } from "./provisionEnvironment";
@@ -37,5 +38,6 @@ export function registerRoutes(app: Application): void {
     app.use(routeConstants.VMSpecUrl, VMSpecController);
     app.use(routeConstants.VMUrl, VMController);
     app.use(routeConstants.SGUrl, SGController);
+    app.use(routeConstants.MinioWebhookUrl, MinioWebhookController);
     app.use("/*", HomeController);
 }
