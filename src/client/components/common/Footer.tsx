@@ -18,64 +18,22 @@ const FooterComponent: React.StatelessComponent<{}> = (props) => {
         <Segment
             inverted
             vertical
-            style={{ margin: "5em 0em 0em", padding: "5em 0em" }}
+            style={{ margin: "5em 0em 0em", padding: "1em 0em" }}
         >
             <Container textAlign="center">
-                <Grid divided inverted stackable>
-                    <Grid.Row>
-                        <Grid.Column width={3}>
-                            <Header inverted as="h4" content="Group 1" />
-                            <List link inverted>
-                                <List.Item as="a">Link One</List.Item>
-                                <List.Item as="a">Link Two</List.Item>
-                                <List.Item as="a">Link Three</List.Item>
-                                <List.Item as="a">Link Four</List.Item>
-                            </List>
-                        </Grid.Column>
-                        <Grid.Column width={3}>
-                            <Header inverted as="h4" content="Group 2" />
-                            <List link inverted>
-                                <List.Item as="a">Link One</List.Item>
-                                <List.Item as="a">Link Two</List.Item>
-                                <List.Item as="a">Link Three</List.Item>
-                                <List.Item as="a">Link Four</List.Item>
-                            </List>
-                        </Grid.Column>
-                        <Grid.Column width={3}>
-                            <Header inverted as="h4" content="Group 3" />
-                            <List link inverted>
-                                <List.Item as="a">Link One</List.Item>
-                                <List.Item as="a">Link Two</List.Item>
-                                <List.Item as="a">Link Three</List.Item>
-                                <List.Item as="a">Link Four</List.Item>
-                            </List>
-                        </Grid.Column>
-                        <Grid.Column width={3}>
-                            <Header inverted as="h4" content="Footer Header" />
-                            <p>
-                                Extra space for a call to action inside the
-                                footer that could help re-engage users.
-                            </p>
-                        </Grid.Column>
-                    </Grid.Row>
-                </Grid>
-
-                <Divider inverted section />
-                <Image centered size="mini" src="/public/images/logo.png" />
                 <List horizontal inverted divided link>
-                    <List.Item as="a" href="#">
-                        Site Map
+                    <List.Item as="a" href="https://docs.homelabaas.io">
+                        Docs
                     </List.Item>
-                    <List.Item as="a" href="#">
-                        Contact Us
+                    <List.Item as="a" href="https://github.com/homelabaas/haas-application">
+                        Github
                     </List.Item>
-                    <List.Item as="a" href="#">
-                        Terms and Conditions
-                    </List.Item>
-                    <List.Item as="a" href="#">
-                        Privacy Policy
+                    <List.Item as="a" href="https://homelabaas.io">
+                        Web
                     </List.Item>
                 </List>
+                <Divider inverted section />
+                <Image centered size="mini" src="/public/images/logo.png" />
             </Container>
         </Segment>
     );
