@@ -269,16 +269,13 @@ class DependencyManager {
     }
 
     private InitPostgres = async () => {
-        const username = config.get<string>("Database.Username");
-        const password = config.get<string>("Database.Password");
+
         const database = config.get<string>("Database.DbName");
-        const host = config.get<string>("Database.Host");
-        const port = config.get<number>("Database.Port");
+        const connectionString = config.get<string>("Database.ConnectionString");
 
         try {
             // Create the database automatically if it doesn't exist
-            const conStringPri = "postgres://" + username + ":" + password + "@" + host + ":" + port + "/postgres";
-            const client = new pg.Client(conStringPri);
+            const client = new pg.Client(connectionString + "postgres");
             await client.connect();
             try {
                 await client.query(`CREATE DATABASE ${database}`);
@@ -288,7 +285,7 @@ class DependencyManager {
             await client.end();
             // Only force sync when we are running the api test suite
             const forceSync = isTestApiMode;
-            await sequelize(username, password, database, host, port).sync({force: forceSync});
+            await sequelize(connectionString + database).sync({force: forceSync});
             this.ServerStatus.PostgresConnected = true;
         } catch (err) {
             this.ServerStatus.PostgresConnected = false;

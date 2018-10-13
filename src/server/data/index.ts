@@ -1,15 +1,9 @@
 import * as path from "path";
 import { Sequelize } from "sequelize-typescript";
 
-export function sequelize(username: string, password: string, database: string, host: string, port: number) {
+export function sequelize(connectionString: string) {
     return new Sequelize({
-        dialect: "postgres",
-        operatorsAliases: Sequelize.Op as any,
-        database,
-        host,
-        username,
-        password,
-        port,
+        url: connectionString,
         modelPaths: [path.join(__dirname,  "models")]
     });
 }
