@@ -1,6 +1,7 @@
 import * as bunyan from "bunyan";
 import * as yaml from "js-yaml";
-import { BucketItem, Client, NotificationConfig, ObjectCreatedAll, ObjectRemovedAll, QueueConfig } from "minio";
+import { BucketItem, Client } from "minio";
+import * as path from "path";
 import { IMinioSettings } from "../../common/models/IMinioSettings";
 import { PostgresStore } from "../data/postgresStore";
 import { IBuildType } from "./../../common/models/IBuildType";
@@ -8,6 +9,8 @@ import { MinioArrayWriteStream } from "./minioArrayWriteStream";
 
 export const BuilderFilenameConstant = ".builder.yml";
 export const MinioEventArn = "arn:minio:sqs::1:webhook";
+const ObjectDeletedEventName = "s3:ObjectRemoved:Delete";
+const ObjectCreatedEventName = "s3:ObjectCreated:Put";
 
 export class MinioManager {
 
@@ -55,18 +58,23 @@ export class MinioManager {
     }
 
     public SetUpEventRegistration = async () => {
-        const registrations = await this.MinioClient.getBucketNotification(this.BuilderDefinitionsBucketName) as any;
-        // any cast is a workaround
-        if (registrations.QueueConfiguration.find((p) => p.Queue === MinioEventArn ) === undefined) {
-            const bucketNotification = new NotificationConfig();
-            const topic = new QueueConfig(MinioEventArn);
-            topic.addEvent(ObjectCreatedAll);
-            topic.addEvent(ObjectRemovedAll);
-            bucketNotification.add(topic);
-            this.Logger.info(bucketNotification, "Adding event registration.");
-            await this.MinioClient.setBucketNotification(this.BuilderDefinitionsBucketName, bucketNotification);
-        }
-        this.Logger.debug(registrations);
+        this.Logger.info("Adding event registration.");
+        const notificationFunction = this.MinioClient.listenBucketNotification(this.BuilderDefinitionsBucketName,
+            "",
+            "",
+            ["s3:ObjectCreated:*", "s3:ObjectRemoved:*"]);
+        notificationFunction.on("notification", async (record) => {
+            const key = record.s3.object.key;
+            const eventName = record.eventName;
+            if (path.basename(key) === BuilderFilenameConstant) {
+                this.Logger.debug(`Updating ${key} due to event ${eventName}`);
+                if (eventName === ObjectDeletedEventName) {
+                    await this.RemoveBuilderFile(key);
+                } else if (eventName === ObjectCreatedEventName) {
+                    await this.InsertOrUpdateBuilderFile(key);
+                }
+            }
+        });
     }
 
     public RemoveBuilderFile = async (minioKey: string) => {
