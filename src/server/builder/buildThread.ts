@@ -83,9 +83,9 @@ export class BuildThread {
             vmName = vmName + "-" + buildConfig.LastBuildNumber.toString();
         }
         const folder = path.dirname(buildType.Id);
-        const minioUrl = this.MinioConfig.Secure ?
-            `MINIO_URL=https://${this.MinioConfig.Address}:${this.MinioConfig.Port}` :
-            `MINIO_URL=http://${this.MinioConfig.Address}:${this.MinioConfig.Port}`;
+        const minioUrl = this.MinioConfig.Secure === "true" ?
+            `https://${this.MinioConfig.Address}:${this.MinioConfig.Port}` :
+            `http://${this.MinioConfig.Address}:${this.MinioConfig.Port}`;
         const envSettings = [
             `USERNAME=${Dependencies().Settings.VCenterSettings.Username}`,
             `PASSWORD=${Dependencies().Settings.VCenterSettings.Password}`,
