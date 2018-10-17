@@ -25,7 +25,8 @@ class StatusPageComponent extends React.Component<{}, IStatusPageState> {
                 VmProvisionManager: false,
                 EnvironmentManager: false,
                 SgManager: false,
-                VmTerminateManager: false
+                VmTerminateManager: false,
+                VmCleanupManager: false
             }
         };
     }
@@ -51,7 +52,6 @@ class StatusPageComponent extends React.Component<{}, IStatusPageState> {
                 <h2>Dependencies</h2>
                 <p>Postgres: <this.HealthDisplay isOK={this.state.status.PostgresConnected} /></p>
                 <p>Docker: <this.HealthDisplay isOK={this.state.status.DockerConnected} /></p>
-                <p>Docker Registry (optional): <this.HealthDisplay isOK={this.state.status.DockerRegistryAuth} /></p>
                 <p>VCenter: <this.HealthDisplay isOK={this.state.status.VcenterConnected} /></p>
                 <p>Minio: <this.HealthDisplay isOK={this.state.status.MinioConnected} /></p>
                 <p>Minio Content Bucket: <this.HealthDisplay isOK={this.state.status.MinioBucketExists} /></p>
@@ -60,6 +60,7 @@ class StatusPageComponent extends React.Component<{}, IStatusPageState> {
                 <p>VM Builder: <this.HealthDisplay isOK={this.state.status.BuilderThreadRunning} /></p>
                 <p>VM Provisioner: <this.HealthDisplay isOK={this.state.status.VmProvisionManager} /></p>
                 <p>VM Terminator: <this.HealthDisplay isOK={this.state.status.VmTerminateManager} /></p>
+                <p>VM Clean Up: <this.HealthDisplay isOK={this.state.status.VmCleanupManager} /></p>
                 <p>Scaling Group Manager: <this.HealthDisplay isOK={this.state.status.SgManager} /></p>
                 <p>Environment Manager: <this.HealthDisplay isOK={this.state.status.EnvironmentManager} /></p>
             </div>

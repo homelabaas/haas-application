@@ -11,6 +11,7 @@ import { IVCenterSettings } from "../common/models/IVcenterSettings";
 import { BuildThread, IBuildContainerDefinition } from "./builder/buildThread";
 import { EnvironmentMonitor } from "./builder/environmentMonitor";
 import { SgMonitor } from "./builder/sgMonitor";
+import { VmCleanupManager } from "./builder/vmCleanupManager";
 import { VmProvisionMonitor } from "./builder/vmProvisionMonitor";
 import { VmTerminateMonitor } from "./builder/vmTerminateMonitor";
 import { sequelize } from "./data";
@@ -55,6 +56,7 @@ class DependencyManager {
     public VmProvisionMonitor: VmProvisionMonitor;
     public VmTerminateMonitor: VmTerminateMonitor;
     public EnvironmentMonitor: EnvironmentMonitor;
+    public VmCleanupManager: VmCleanupManager;
     public LogFolder: string;
     public Logger: bunyan;
     public DockerAuth: IDockerAuth;
@@ -82,7 +84,8 @@ class DependencyManager {
             VmProvisionManager: false,
             VmTerminateManager: false,
             SgManager: false,
-            EnvironmentManager: false
+            EnvironmentManager: false,
+            VmCleanupManager: false
         };
         this.Settings = {};
         this.PostgresStore = new PostgresStore();
@@ -226,6 +229,16 @@ class DependencyManager {
                 setTimeout(() => { this.VmTerminateMonitor.Run(); }, 11000);
                 this.ServerStatus.VmTerminateManager = true;
                 this.Logger.info("VM Termination Manager polling every 11 seconds.");
+            }
+            if (!this.ServerStatus.VmCleanupManager) {
+                this.VmCleanupManager = new VmCleanupManager(
+                    this.PostgresStore,
+                    this.SocketManager,
+                    this.Logger
+                );
+                setTimeout(() => { this.VmCleanupManager.Run(); }, 10000);
+                this.ServerStatus.VmCleanupManager = true;
+                this.Logger.info("VM Cleanup Manager polling every 5 minutes.");
             }
             if (!this.ServerStatus.SgManager) {
                 this.SgMonitor = new SgMonitor(

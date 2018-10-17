@@ -1,3 +1,4 @@
+import { Moment } from "moment";
 import { BuildItemStatus } from "../../common/models/BuildItemStatus";
 import { IBuild } from "../../common/models/IBuild";
 import { IBuildAndArtifact } from "../../common/models/IBuildAndArtifact";
@@ -83,10 +84,21 @@ export class PostgresStore {
         });
     }
 
-    public GetTerminateVMs = async (): Promise<VirtualMachine[]> => {
+    public GetVMsToTerminate = async (): Promise<VirtualMachine[]> => {
         return await VirtualMachine.findAll({
             where: {
                 Status: VirtualMachineStatus.OrderTerminate
+            }
+        });
+    }
+
+    public GetTerminatedVMs = async (maxDateTime: Moment): Promise<VirtualMachine[]> => {
+        return await VirtualMachine.findAll({
+            where: {
+                Status: VirtualMachineStatus.Terminated,
+                TerminateDateTime: {
+                    $lt: maxDateTime.toDate()
+                }
             }
         });
     }

@@ -91,6 +91,18 @@ export class VmManager {
         }
     }
 
+    public CleanUp = async () => {
+        try {
+            const vm = await this.PostgresStore.GetVM(this.VmId);
+            const vmToTerminate = await Dependencies().VCenter.GetVMById(vm.ResourceId);
+            await Dependencies().VCenter.DestroyVMByMob(vmToTerminate);
+            await this.updateStatus(VirtualMachineStatus.CleanedUp, false, true);
+        } catch (err) {
+            this.Logger.error(`Error running cleanup for vm: ${this.VmId}`);
+            this.Logger.error(err);
+        }
+    }
+
     private setDnsEntry = async () => {
         const vm = await this.PostgresStore.GetVM(this.VmId);
         if (Dependencies().ServerStatus.PowerDNS) {
