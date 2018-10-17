@@ -22,4 +22,5 @@ export interface IVcenter {
     TurnOffVMByMob(vm: vspherevim.vimService.vim.ManagedObjectReference);
     GetEverything(objectToInspect: vspherevim.vimService.vim.ManagedObjectReference): Promise<any>;
     GetDatastoreById(datastoreId: string): Promise<vspherevim.vimService.vim.ManagedObjectReference>;
+    DestroyVMByMob(vm: vspherevim.vimService.vim.ManagedObjectReference);
 }

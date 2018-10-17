@@ -1,10 +1,10 @@
 import * as bunyan from "bunyan";
-import { VirtualMachineStatus } from "../../common/models/VirtualMachineStatus";
+import * as moment from "moment";
 import { SocketManager } from "../socketio/socketManager";
 import { PostgresStore } from "./../data/postgresStore";
 import { VmManager } from "./vmManager";
 
-export class VmTerminateMonitor {
+export class VmCleanupManager {
     private PostgresStore: PostgresStore;
     private KeepRunning: boolean;
     private Logger: bunyan;
@@ -20,27 +20,25 @@ export class VmTerminateMonitor {
     }
 
     public Run = () => {
-        this.CheckTerminateVM().then(() => {
+        this.CheckOldTerminatedVMs().then(() => {
             if (this.KeepRunning) {
-                setTimeout(() => { this.Run(); }, 5000);
+                setTimeout(() => { this.Run(); }, 5 * 60 * 1000);
             }
         });
     }
 
-    private CheckTerminateVM = async () => {
+    private CheckOldTerminatedVMs = async () => {
         try {
-            const newVMs = await this.PostgresStore.GetVMsToTerminate();
+            const minDateTime = moment().subtract(2, "hours");
+            const newVMs = await this.PostgresStore.GetTerminatedVMs(minDateTime);
             if (newVMs.length > 0) {
-                this.Logger.info(`Found ${newVMs.length} VMs to terminate.`);
+                this.Logger.info(`Found ${newVMs.length} VMs to clean up.`);
             }
             for (const vm of newVMs) {
                 const vmUpdate = await this.PostgresStore.GetVM(vm.Id);
-                vmUpdate.Status = VirtualMachineStatus.Terminating;
-                await this.PostgresStore.SaveVM(vmUpdate);
-                this.SocketManager.SendVMUpdate(vmUpdate);
                 const terminateTask = new VmManager(vm.Id, this.SocketManager, this.Logger,
                     this.PostgresStore);
-                setImmediate(terminateTask.TerminateVm);
+                setImmediate(terminateTask.CleanUp);
             }
         } catch (err) {
             this.Logger.error(err.message);

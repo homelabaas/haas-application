@@ -404,7 +404,7 @@ export class VMWare implements IVcenter {
         return (guestInformation.guestState === "running");
     }
 
-    public async TurnOnVMByMob(vm: vspherevim.vimService.vim.ManagedObjectReference ) {
+    public async TurnOnVMByMob(vm: vspherevim.vimService.vim.ManagedObjectReference) {
         const host = await this.GetHostOfVM(vm);
         await this.completeTask(this.vimService,
             await this.vimService.vimPort.powerOnVMTask(vm, host));
@@ -480,6 +480,11 @@ export class VMWare implements IVcenter {
         }
         await this.completeTask(this.vimService,
             await this.vimService.vimPort.destroyTask(virtualMachine));
+    }
+
+    public async DestroyVMByMob(vm: vspherevim.vimService.vim.ManagedObjectReference) {
+        await this.completeTask(this.vimService,
+            await this.vimService.vimPort.destroyTask(vm));
     }
 
     /** Constructs the URL for a file on a host. */

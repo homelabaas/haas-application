@@ -9,6 +9,7 @@ export interface IStatus {
     PostgresConnected: boolean;
     VmProvisionManager: boolean;
     VmTerminateManager: boolean;
+    VmCleanupManager: boolean;
     SgManager: boolean;
     EnvironmentManager: boolean;
 }

@@ -66,4 +66,8 @@ export class FakeVCenter implements IVcenter {
         Promise<vspherevim.vimService.vim.ManagedObjectReference> => {
         return;
     }
+
+    public DestroyVMByMob(vm: vspherevim.vimService.vim.ManagedObjectReference) {
+        return;
+    }
 }

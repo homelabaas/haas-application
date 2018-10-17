@@ -6,7 +6,8 @@ export enum VirtualMachineStatus {
     Ready = 4,
     OrderTerminate = 5,
     Terminating = 6,
-    Terminated = 7
+    Terminated = 7,
+    CleanedUp = 8
 }
 
 export function StatusToString(status: VirtualMachineStatus) {
@@ -27,5 +28,7 @@ export function StatusToString(status: VirtualMachineStatus) {
             return "Terminating";
         case VirtualMachineStatus.Terminated:
             return "Terminated";
+        case VirtualMachineStatus.CleanedUp:
+            return "Cleaned Up";
     }
 }
