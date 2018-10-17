@@ -26,4 +26,13 @@ router.post("/:instanceid", async (req: Request, res: Response) => {
     }
 });
 
+router.get("/userdata", async (req: Request, res: Response) => {
+    const appSetting = await Dependencies().PostgresStore.GetSettings("application");
+    const returnValue = `phone_home:
+    url: ${appSetting.URL}/api/phonehome/$INSTANCE_ID/
+    post:
+        - instance_id`;
+    res.json({userdata: returnValue});
+});
+
 export const PhoneHomeController: Router = router;

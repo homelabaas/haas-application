@@ -19,6 +19,7 @@ import { IEnvironmentDefinition } from "./../../common/models/IEnvironmentDefini
 import { IFileForDatastore } from "./../../common/models/IFileForDatastore";
 import { IGenericReturn } from "./../../common/models/IGenericReturn";
 import { IHostDetails } from "./../../common/models/IHostDetails";
+import { IPhoneHomeUserData } from "./../../common/models/IPhoneHomeUserData";
 import { IPopulateNetworkRequest } from "./../../common/models/IPopulateNetworkRequest";
 import { IPowerDnsSettings } from "./../../common/models/IPowerDnsSettings";
 import { IProvisionDetails } from "./../../common/models/IProvisionDetails";
@@ -261,4 +262,9 @@ export const provisionEnvironment = async (provisionDetails: IEnvironmentDefinit
         Promise<IGenericReturn> => {
     const returnValue = await axios.default.post(routeConstants.ProvisionEnvironmentUrl, provisionDetails);
     return returnValue.data as IGenericReturn;
+};
+
+export const getPhoneHomeUserData = async () => {
+    const returnValue = await axios.default.get(routeConstants.PhoneHomeUrl + "/userdata");
+    return returnValue.data as IPhoneHomeUserData;
 };

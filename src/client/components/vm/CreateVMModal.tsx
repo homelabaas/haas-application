@@ -1,6 +1,6 @@
 import * as React from "react";
 import { hot } from "react-hot-loader";
-import { Dropdown, Button, Modal, Header, Icon, Form, TextArea, Label } from "semantic-ui-react";
+import { Dropdown, Button, Modal, Header, Icon, Form, TextArea, Label, Checkbox } from "semantic-ui-react";
 import * as api from "../../api";
 import { IBuildType } from "../../../common/models/IBuildType";
 import { ICreateVMRequest } from "../../../common/models/ICreateVMRequest";
@@ -21,6 +21,7 @@ interface ICreateVMState {
     VMName: string;
     UserData: string;
     Tags: IDictionary<string>;
+    PhoneHome: boolean;
 }
 
 class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
@@ -41,7 +42,8 @@ class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
             SelectedUserData: "",
             VMName: "",
             UserData: "",
-            Tags: {}
+            Tags: {},
+            PhoneHome: true
         };
     }
 
@@ -124,7 +126,11 @@ class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
 
     public handleUserDataChange = async (event: any, data: any) => {
         const userDataId = data.value;
-        const userData = await this.loadUserData(userDataId);
+        let userData = await this.loadUserData(userDataId);
+        if (this.state.PhoneHome) {
+            const phoneHomeUserData = await api.getPhoneHomeUserData();
+            userData += phoneHomeUserData.userdata;
+        }
         this.setState({
             SelectedUserData: userDataId,
             UserData: userData
@@ -155,6 +161,12 @@ class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
         });
     }
 
+    public handlePhoneHomeChange = (event: any) => {
+        this.setState({
+            PhoneHome: true
+        });
+    }
+
     public render() {
         return (
             <Modal
@@ -180,6 +192,15 @@ class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
                                 <Dropdown fluid search selection value={this.state.SelectedNetworkSegment}
                                     options={this.state.NetworkSegmentDropDown} placeholder="Network"
                                     onChange={this.handleNetworkSegmentChange} />
+                            </Form.Field>
+                        </Form.Group>
+                        <Form.Group widths="equal">
+                            <Form.Field>
+                                <Checkbox label="Phone Home" onChange={this.handlePhoneHomeChange}
+                                    checked={this.state.PhoneHome} />
+                            </Form.Field>
+                            <Form.Field>
+
                             </Form.Field>
                         </Form.Group>
                         <Form.Group widths="equal">
