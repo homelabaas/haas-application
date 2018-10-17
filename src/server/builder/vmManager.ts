@@ -36,6 +36,7 @@ export class VmManager {
             const artifact = await this.PostgresStore.GetArtifactById(vm.ArtifactId);
             const vmToClone = await Dependencies().VCenter.GetVMById(artifact.ResourceId);
             const vmSpec = await this.PostgresStore.GetVMSpec(vm.VMSpecId);
+            this.Logger.info({VmId: this.VmId, vmToClone, vmSpec}, `Provision new VM. Begin clone.`);
 
             await this.updateStatus(VirtualMachineStatus.Clone);
 
@@ -65,6 +66,10 @@ export class VmManager {
                 guestInfoSettings.push( { key: "guestinfo.cloudconfig.environment",
                     value: vm.EnvironmentName });
             }
+            this.Logger.info({VmId: this.VmId,
+                guestInfoSettings,
+                cpus: vmSpec.CPUCount,
+                ram: vmSpec.RAMinGB * 1024}, `Reconfigure new VM.`);
 
             await Dependencies().VCenter.ReconfigureVMByMob(newVm, guestInfoSettings,
                 vmSpec.CPUCount, vmSpec.RAMinGB * 1024);
@@ -81,6 +86,7 @@ export class VmManager {
         try {
             const vm = await this.PostgresStore.GetVM(this.VmId);
             const vmToTerminate = await Dependencies().VCenter.GetVMById(vm.ResourceId);
+            this.Logger.info(`Turning off VM id: ${vm.Id} name: ${vm.MachineName} vmId: ${vm.ResourceId}`);
             await Dependencies().VCenter.TurnOffVMByMob(vmToTerminate);
             await this.removeDnsEntry();
             await this.releaseIp(vm);
@@ -95,6 +101,7 @@ export class VmManager {
         try {
             const vm = await this.PostgresStore.GetVM(this.VmId);
             const vmToTerminate = await Dependencies().VCenter.GetVMById(vm.ResourceId);
+            this.Logger.info(`Deleting VM id: ${vm.Id} name: ${vm.MachineName} vmId: ${vm.ResourceId}`);
             await Dependencies().VCenter.DestroyVMByMob(vmToTerminate);
             await this.updateStatus(VirtualMachineStatus.CleanedUp, false, true);
         } catch (err) {
@@ -106,6 +113,9 @@ export class VmManager {
     private setDnsEntry = async () => {
         const vm = await this.PostgresStore.GetVM(this.VmId);
         if (Dependencies().ServerStatus.PowerDNS) {
+            this.Logger.info({VmId: this.VmId,
+                domain: Dependencies().Settings.PowerDnsSettings.defaultDomain,
+                ip: vm.NetworkIPAssignmentId}, "Add new DNS");
             await Dependencies().PowerDNS.updateZoneSimple(Dependencies().Settings.PowerDnsSettings.defaultDomain,
                 "A", vm.MachineName, vm.NetworkIPAssignmentId);
         }
@@ -114,6 +124,9 @@ export class VmManager {
     private removeDnsEntry = async () => {
         const vm = await this.PostgresStore.GetVM(this.VmId);
         if (Dependencies().ServerStatus.PowerDNS) {
+            this.Logger.info({VmId: this.VmId,
+                domain: Dependencies().Settings.PowerDnsSettings.defaultDomain,
+                ip: vm.NetworkIPAssignmentId}, "Remove DNS");
             await Dependencies().PowerDNS.removeZoneSimple(Dependencies().Settings.PowerDnsSettings.defaultDomain,
                 "A", vm.MachineName, vm.NetworkIPAssignmentId);
         }
@@ -121,6 +134,7 @@ export class VmManager {
 
     private releaseIp = async (vm: VirtualMachine) => {
         if (vm.NetworkIPAssignmentId) {
+            this.Logger.info({VmId: this.VmId, ip: vm.NetworkIPAssignmentId}, "Release IP Address");
             const networkIpAssignment = await this.PostgresStore.GetNetworkIPAssignment(vm.NetworkIPAssignmentId);
             networkIpAssignment.VirtualMachineId = null;
             this.PostgresStore.SaveNetworkIPAssignment(networkIpAssignment);
