@@ -4,6 +4,7 @@ import "semantic-ui-css/semantic.css";
 import { Socket } from "socket.io-client";
 import { AppRouter } from "./routes";
 import "notus/src/notus.css";
+import "./app.css";
 
 const root = document.createElement("div");
 document.body.appendChild(root);

@@ -298,7 +298,7 @@ class DependencyManager {
             await client.end();
             // Only force sync when we are running the api test suite
             const forceSync = isTestApiMode;
-            await sequelize(connectionString + database).sync({force: forceSync});
+            await sequelize(connectionString + database, this.LogFolder).sync({force: forceSync});
             this.ServerStatus.PostgresConnected = true;
         } catch (err) {
             this.ServerStatus.PostgresConnected = false;

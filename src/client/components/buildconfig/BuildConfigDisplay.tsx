@@ -1,7 +1,7 @@
 import * as React from "react";
 import { hot } from "react-hot-loader";
 import { Link } from "react-router-dom";
-import { Button, Checkbox, Form, Message, Dropdown, Container, Grid, Segment } from "semantic-ui-react";
+import { Button, Checkbox, Form, Message, Dropdown, Container, Grid, Segment, Icon } from "semantic-ui-react";
 import * as api from "../../api";
 import { IBuildConfig } from "../../../common/models/IBuildConfig";
 import { MessageDisplay } from "../common/MessageDisplay";
@@ -95,6 +95,7 @@ class BuildConfigDisplayComponent extends React.Component<IProps, IDisplayBuildC
     public render() {
         return (
             <Container>
+                <Link to="/buildconfig"><Icon name="angle double left" />Build Configurations</Link>
                 <h3 className="ui dividing header">Build Configuration</h3>
                 <Grid celled container stackable>
                     <Grid.Row columns={2}>

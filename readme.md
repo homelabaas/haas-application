@@ -1,14 +1,16 @@
-# Homelab Builder
+# Homelab as a Service Application
+
+[![CircleCI](https://circleci.com/gh/homelabaas/haas-application.svg?style=svg)](https://circleci.com/gh/homelabaas/haas-application)
 
 The idea of this application is to provide a great developer/ops experience for a homelab environment, taking a lot of influence from how various cloud vendors present their services in such an easy to consume way.
 
-This is a web application which can manage the building and provisioning of VMs and general infrastructure for a home lab environment. It focuses on having a great way to provision new servers, plus running docker swarm with load balacing and DNS integration. This application is designed to work with a very particular set of technologies for a home lab.
+This is a web application which can manage the building and provisioning of VMs and general infrastructure for a home lab environment. It focuses on having a great way to provision new servers, plus running docker with load balacing and DNS integration. This application is designed to work with a very particular set of technologies for a home lab.
 
-Documentation is very early days, but can be viewed at <http://homelabaas-website.s3-website-ap-southeast-2.amazonaws.com/>.
+More information, along with documentation, can be found at <https://homelabaas.io>
 
 ## Known issues & workarounds
 
-No known issues.
+The trello board tracks outstanding bugs.
 
 ## Requirements
 

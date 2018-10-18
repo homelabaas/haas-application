@@ -1,7 +1,7 @@
 import * as React from "react";
 import { hot } from "react-hot-loader";
 import { Link } from "react-router-dom";
-import { Form, Container, Button, Grid, Table } from "semantic-ui-react";
+import { Form, Container, Button, Grid, Table, Icon } from "semantic-ui-react";
 import { INetworkSegment } from "../../../common/models/INetworkSegment";
 import * as api from "../../api";
 import { editNetworkSegmentPageUrl } from "../../../common/routeDefinitions";
@@ -76,6 +76,7 @@ class NetworkSegmentDisplayPageComponent extends React.Component<IProps, IDispla
     public render() {
         return (
             <Container>
+                <Link to="/network"><Icon name="angle double left" />Network Segments</Link>
                 <h3 className="ui dividing header">Network Segment</h3>
                 <Grid celled container stackable>
                     <Grid.Row columns={3}>
