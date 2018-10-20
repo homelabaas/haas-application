@@ -2,6 +2,7 @@ import * as bunyan from "bunyan";
 import * as seq from "bunyan-seq";
 import * as config from "config";
 import * as fs from "fs";
+import * as tunnel from "global-tunnel-ng";
 import * as http from "http";
 import { AddressInfo } from "net";
 import * as path from "path";
@@ -10,6 +11,14 @@ import { Dependencies } from "./dependencyManager";
 
 // perhaps global settings for these - using config?
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+if (process.env.PROXY_ENABLED === "true") {
+    tunnel.initialize({
+        host: process.env.PROXY_URL,
+        port: +process.env.PROXY_PORT,
+        sockets: 50 // optional pool size for each http and https
+    });
+}
 
 const port: number = +(process.env.PORT || config.get("Port") || "3000");
 const logfilePath = path.join(__dirname, "..", "..", "logs");
