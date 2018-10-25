@@ -8,7 +8,9 @@ import { ContentController } from "./content";
 import { DnsController } from "./dns";
 import { EnvironmentController } from "./environment";
 import { EnvironmentSettingController } from "./environmentSetting";
+import { ErrorController } from "./error";
 import { HomeController } from "./home";
+import { MinioBrowserController } from "./miniobrowser";
 import { MinioWebhookController } from "./miniowebhook";
 import { NetworkSegmentController } from "./networksegment";
 import { PhoneHomeController } from "./phonehome";
@@ -39,5 +41,7 @@ export function registerRoutes(app: Application): void {
     app.use(routeConstants.VMUrl, VMController);
     app.use(routeConstants.SGUrl, SGController);
     app.use(routeConstants.MinioWebhookUrl, MinioWebhookController);
+    app.use(routeConstants.MinioBrowserUrl, MinioBrowserController);
+    app.use("/api/*", ErrorController);
     app.use("/*", HomeController);
 }

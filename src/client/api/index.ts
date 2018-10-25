@@ -268,3 +268,8 @@ export const getPhoneHomeUserData = async () => {
     const returnValue = await axios.default.get(routeConstants.PhoneHomeUrl + "/userdata");
     return returnValue.data as IPhoneHomeUserData;
 };
+
+export const getMinioBrowser = async (prefix: string) => {
+    const returnValue = await axios.default.get(routeConstants.MinioBrowserUrl + "/" + prefix);
+    return returnValue.data as any[];
+};

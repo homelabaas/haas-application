@@ -6,6 +6,7 @@ import { IMinioSettings } from "../../common/models/IMinioSettings";
 import { PostgresStore } from "../data/postgresStore";
 import { IBuildType } from "./../../common/models/IBuildType";
 import { MinioArrayWriteStream } from "./minioArrayWriteStream";
+import { MinioArrayWriteStreamForFilename } from "./minioArrayWriteStreamForFilename";
 
 export const BuilderFilenameConstant = ".builder.yml";
 export const MinioEventArn = "arn:minio:sqs::1:webhook";
@@ -94,6 +95,16 @@ export class MinioManager {
             + buildTypes.length.toString());
     }
 
+    public MinioListObjects = (bucketName: string, prefix: string): Promise<BucketItem[]> => {
+        return new Promise<BucketItem[]>((resolve) => {
+            const arrayStream = new MinioArrayWriteStream();
+            this.MinioClient.listObjectsV2(bucketName, prefix, false)
+                .pipe(arrayStream, { end: true }).on("finish", () => {
+                resolve(arrayStream.ReturnArray);
+            });
+        });
+    }
+
     private GetMinioBuildTypes = async (bucketName: string): Promise<IBuildType[]> => {
         const returnBuildTypeArray: IBuildType[] = [];
         const yamlFiles = await this.MinioScan(bucketName, BuilderFilenameConstant);
@@ -105,7 +116,7 @@ export class MinioManager {
 
     private MinioScan = (bucketName: string, filename: string): Promise<BucketItem[]> => {
         return new Promise<BucketItem[]>((resolve) => {
-            const arrayStream = new MinioArrayWriteStream(filename);
+            const arrayStream = new MinioArrayWriteStreamForFilename(filename);
             this.MinioClient.listObjects(bucketName, "", true).pipe(arrayStream, { end: true }).on("finish", () => {
                 resolve(arrayStream.ReturnArray);
             });

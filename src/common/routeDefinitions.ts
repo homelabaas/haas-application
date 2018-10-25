@@ -17,6 +17,7 @@ export const VMSpecUrl = "/api/vmspec";
 export const VMUrl = "/api/vm";
 export const SGUrl = "/api/sg";
 export const MinioWebhookUrl = "/api/miniowebhook";
+export const MinioBrowserUrl = "/api/miniobrowser";
 
 export function editBuildConfigPageUrl(id: number) { return `/buildconfigedit/${id}`; }
 export function buildConfigPageUrl(id: number) { return `/buildconfig/${id}`; }
