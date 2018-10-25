@@ -18,6 +18,7 @@ import { StatusPage } from "./components/status/StatusPage";
 import { StoragePage } from "./components/storage/StoragePage";
 import { VMPage } from "./components/vm/VMPage";
 import { VMSpecPage } from "./components/vmspec/VMSpecPage";
+import { MissingPage } from "./components/404/404";
 
 const AppRouterComponent: React.StatelessComponent<{}> = () => {
     return (
@@ -40,6 +41,7 @@ const AppRouterComponent: React.StatelessComponent<{}> = () => {
                     <Route path="/scalinggroup" component={SGPage} />
                     <Route path="/vmspec" component={VMSpecPage} />
                     <Route path="/vm" component={VMPage} />
+                    <Route component={MissingPage} />
                 </Switch>
             </App>
         </BrowserRouter>
