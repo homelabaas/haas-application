@@ -6,8 +6,10 @@ import { IContent } from "./../../common/models/IContent";
 const router: Router = Router();
 
 router.get("/", async (req: Request, res: Response) => {
-    // pass in ID as querystring
     try {
+        if (req.query.id === undefined) {
+            throw Error("Invalid content Id.");
+        }
         if (Dependencies().ServerStatus.MinioConnected) {
             const id = req.query.id;
             const bucket = Dependencies().Settings.MinioSettings.ContentBucket;

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { hot } from "react-hot-loader";
-import { List } from "semantic-ui-react";
+import { List, TextArea } from "semantic-ui-react";
 import * as api from "../../api";
 interface ITreeItem {
     prefix: string;
@@ -14,6 +14,8 @@ interface ITreeItem {
 interface IStoragePageState {
     rootTreeItems: ITreeItem[];
     currentBucket: string;
+    content: string;
+    saveDirty: boolean;
 }
 
 class StoragePageComponent extends React.Component<{}, IStoragePageState> {
@@ -22,7 +24,9 @@ class StoragePageComponent extends React.Component<{}, IStoragePageState> {
         super(props);
         this.state = {
             rootTreeItems: [],
-            currentBucket: ""
+            currentBucket: "",
+            content: "",
+            saveDirty: false
         };
     }
 
@@ -41,7 +45,6 @@ class StoragePageComponent extends React.Component<{}, IStoragePageState> {
     public FolderClick = async (evt: any, prefix: string, isOpen: boolean) => {
         if (evt) {
             if (isOpen) {
-                // close it here
                 const newState = Object.assign([], this.state.rootTreeItems);
                 this.removeChildrenFromTree(newState, prefix);
                 this.setState({
@@ -59,6 +62,16 @@ class StoragePageComponent extends React.Component<{}, IStoragePageState> {
                     rootTreeItems: newState
                 });
             }
+        }
+    }
+
+    public FileClick = async (evt: any, prefix: string) => {
+        if (evt) {
+            const content = await api.getContent(prefix);
+            this.setState({
+                content: content.content,
+                saveDirty: false
+            });
         }
     }
 
@@ -94,8 +107,8 @@ class StoragePageComponent extends React.Component<{}, IStoragePageState> {
                     }
                     return (
                         <List.Item key={item.name}>
-                            <List.Icon name="file" />
-                            <List.Content>
+                            <List.Icon name="file" onClick={(evt: any) => this.FileClick(evt, item.name)}  />
+                            <List.Content onClick={(evt: any) => this.FileClick(evt, item.name)} >
                                 <List.Header>{displayName}</List.Header>
                             </List.Content>
                         </List.Item>);
@@ -107,12 +120,22 @@ class StoragePageComponent extends React.Component<{}, IStoragePageState> {
         }
     }
 
+    public handleContentChange = (event: any) => {
+        const newcontent = event.target.value;
+        this.setState({
+            content: newcontent,
+            saveDirty: true
+        });
+    }
+
     public render() {
         return (<div>
             <h2>Browse {this.state.currentBucket}</h2>
             <List>
                 <this.ListFolders items={this.state.rootTreeItems} />
             </List>
+            <TextArea onChange={this.handleContentChange}
+                value={this.state.content} style={{ minHeight: 300 }} />
         </div>
         );
     }

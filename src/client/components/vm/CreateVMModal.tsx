@@ -124,7 +124,7 @@ class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
         });
     }
 
-    public handleUserDataChange = async (event: any, data: any) => {
+    public handleUserDataDropdownChange = async (event: any, data: any) => {
         const userDataId = data.value;
         let userData = await this.loadUserData(userDataId);
         if (this.state.PhoneHome) {
@@ -164,6 +164,13 @@ class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
     public handlePhoneHomeChange = (event: any) => {
         this.setState({
             PhoneHome: true
+        });
+    }
+
+    public handleUserDataChange = (event: any) => {
+        const userdata = event.target.value;
+        this.setState({
+            UserData: userdata
         });
     }
 
@@ -212,13 +219,13 @@ class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
                             <Form.Field>
                                 <Dropdown fluid search selection value={this.state.SelectedUserData}
                                     options={this.state.UserDataLoadDropDown} placeholder="User Data"
-                                    onChange={this.handleUserDataChange} />
+                                    onChange={this.handleUserDataDropdownChange} />
                             </Form.Field>
                         </Form.Group>
                         <TagEditor Tags={this.state.Tags} onChangeTags={this.handleTagChange} />
                         <Form.Field>
-                        <TextArea placeholder="User Data" onChange={this.handleUserDataChange}
-                            value={this.state.UserData} style={{ minHeight: 300 }} />
+                            <TextArea placeholder="User Data" onChange={this.handleUserDataChange}
+                                value={this.state.UserData} style={{ minHeight: 300 }} />
                         </Form.Field>
                     </Form>
                 </Modal.Content>
