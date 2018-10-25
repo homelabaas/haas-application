@@ -1,6 +1,6 @@
 import * as React from "react";
 import { hot } from "react-hot-loader";
-import { List, TextArea } from "semantic-ui-react";
+import { List, TextArea, Grid, Container } from "semantic-ui-react";
 import * as api from "../../api";
 interface ITreeItem {
     prefix: string;
@@ -16,6 +16,7 @@ interface IStoragePageState {
     currentBucket: string;
     content: string;
     saveDirty: boolean;
+    currentFilePath: string;
 }
 
 class StoragePageComponent extends React.Component<{}, IStoragePageState> {
@@ -26,7 +27,8 @@ class StoragePageComponent extends React.Component<{}, IStoragePageState> {
             rootTreeItems: [],
             currentBucket: "",
             content: "",
-            saveDirty: false
+            saveDirty: false,
+            currentFilePath: ""
         };
     }
 
@@ -70,7 +72,8 @@ class StoragePageComponent extends React.Component<{}, IStoragePageState> {
             const content = await api.getContent(prefix);
             this.setState({
                 content: content.content,
-                saveDirty: false
+                saveDirty: false,
+                currentFilePath: prefix
             });
         }
     }
@@ -129,14 +132,23 @@ class StoragePageComponent extends React.Component<{}, IStoragePageState> {
     }
 
     public render() {
-        return (<div>
+        return (<Container text>
             <h2>Browse {this.state.currentBucket}</h2>
-            <List>
-                <this.ListFolders items={this.state.rootTreeItems} />
-            </List>
-            <TextArea onChange={this.handleContentChange}
-                value={this.state.content} style={{ minHeight: 300 }} />
-        </div>
+
+            <Grid>
+                <Grid.Column width={6}>
+                    <List>
+                        <this.ListFolders items={this.state.rootTreeItems} />
+                    </List>
+                </Grid.Column>
+                <Grid.Column width={10}>
+                    <h3>{this.state.currentFilePath}</h3>
+                    <TextArea onChange={this.handleContentChange}
+                        value={this.state.content} style={{ minHeight: 300, minWidth: 500 }} />
+                </Grid.Column>
+            </Grid>
+
+        </Container>
         );
     }
 
