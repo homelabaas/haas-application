@@ -7,6 +7,11 @@ import { ICreateVMRequest } from "../../../common/models/ICreateVMRequest";
 import { IDropdownSelection } from "../IDropdownSelection";
 import { IDictionary } from "../IDictionary";
 import { TagEditor } from "../common/TagEditor";
+import * as brace from "brace";
+import AceEditor from "react-ace";
+
+import "brace/mode/yaml";
+import "brace/theme/tomorrow";
 
 interface ICreateVMState {
     ModalOpen: boolean;
@@ -167,10 +172,9 @@ class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
         });
     }
 
-    public handleUserDataChange = (event: any) => {
-        const userdata = event.target.value;
+    public handleUserDataChange = (newvalue: any) => {
         this.setState({
-            UserData: userdata
+            UserData: newvalue
         });
     }
 
@@ -224,8 +228,14 @@ class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
                         </Form.Group>
                         <TagEditor Tags={this.state.Tags} onChangeTags={this.handleTagChange} />
                         <Form.Field>
-                            <TextArea placeholder="User Data" onChange={this.handleUserDataChange}
-                                value={this.state.UserData} style={{ minHeight: 300 }} />
+                        <AceEditor
+                                mode="yaml"
+                                theme="tomorrow"
+                                onChange={this.handleUserDataChange}
+                                name="UNIQUE_ID_OF_DIV"
+                                value={this.state.UserData}
+                                editorProps={{$blockScrolling: true}}
+                            />
                         </Form.Field>
                     </Form>
                 </Modal.Content>

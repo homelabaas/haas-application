@@ -2,6 +2,18 @@ import * as React from "react";
 import { hot } from "react-hot-loader";
 import { List, TextArea, Grid, Container } from "semantic-ui-react";
 import * as api from "../../api";
+import * as brace from "brace";
+import AceEditor from "react-ace";
+import * as path from "path";
+
+import "brace/mode/javascript";
+import "brace/mode/json";
+import "brace/mode/yaml";
+import "brace/mode/sh";
+import "brace/mode/markdown";
+import "brace/mode/dockerfile";
+import "brace/theme/tomorrow";
+
 interface ITreeItem {
     prefix: string;
     size: number;
@@ -17,7 +29,21 @@ interface IStoragePageState {
     content: string;
     saveDirty: boolean;
     currentFilePath: string;
+    aceMode: string;
 }
+
+const extensionMapping: any = {
+    yaml: "yaml",
+    yml: "yaml",
+    js: "javascript",
+    json: "json",
+    sh: "sh",
+    md: "markdown"
+};
+
+const filenameMapping: any = {
+    Dockerfile: "dockerfile"
+};
 
 class StoragePageComponent extends React.Component<{}, IStoragePageState> {
 
@@ -28,7 +54,8 @@ class StoragePageComponent extends React.Component<{}, IStoragePageState> {
             currentBucket: "",
             content: "",
             saveDirty: false,
-            currentFilePath: ""
+            currentFilePath: "",
+            aceMode: "text"
         };
     }
 
@@ -70,10 +97,20 @@ class StoragePageComponent extends React.Component<{}, IStoragePageState> {
     public FileClick = async (evt: any, prefix: string) => {
         if (evt) {
             const content = await api.getContent(prefix);
+            let extension = path.extname(prefix);
+            extension = extension.substr(1);
+            const filename = path.basename(prefix);
+            let newMode = "text";
+            if (extensionMapping[extension]) {
+                newMode = extensionMapping[extension];
+            } else if (filenameMapping[filename]) {
+                newMode = filenameMapping[filename];
+            }
             this.setState({
                 content: content.content,
                 saveDirty: false,
-                currentFilePath: prefix
+                currentFilePath: prefix,
+                aceMode: newMode
             });
         }
     }
@@ -142,9 +179,15 @@ class StoragePageComponent extends React.Component<{}, IStoragePageState> {
                     </List>
                 </Grid.Column>
                 <Grid.Column width={10}>
-                    <h3>{this.state.currentFilePath}</h3>
-                    <TextArea onChange={this.handleContentChange}
-                        value={this.state.content} style={{ minHeight: 300, minWidth: 500 }} />
+                    <h4>{this.state.currentFilePath}</h4>
+                    <AceEditor
+                        mode={this.state.aceMode}
+                        theme="tomorrow"
+                        onChange={this.handleContentChange}
+                        name="UNIQUE_ID_OF_DIV"
+                        value={this.state.content}
+                        editorProps={{$blockScrolling: true}}
+                    />
                 </Grid.Column>
             </Grid>
 
