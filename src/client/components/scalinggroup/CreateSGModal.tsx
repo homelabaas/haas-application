@@ -51,7 +51,7 @@ class CreateSGModalComponent extends React.Component<{}, ICreateSGState> {
 
     public async componentDidMount() {
         const vmSpecs = await api.getVMSpecs();
-        const buildsAndArtifacts = await api.getBuildsAndArtifacts("UserData");
+        const buildsAndArtifacts = await api.getBuildsAndArtifactsByType("UserData");
         const networkSegments = await api.getNetworkSegments();
         this.loadedUserData = await api.getBuildTypesByType("Provisioner");
         this.setState({

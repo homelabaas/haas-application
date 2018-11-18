@@ -1,4 +1,5 @@
 import { Moment } from "moment";
+import { Op } from "sequelize";
 import { BuildItemStatus } from "../../common/models/BuildItemStatus";
 import { IBuild } from "../../common/models/IBuild";
 import { IBuildAndArtifact } from "../../common/models/IBuildAndArtifact";
@@ -103,8 +104,16 @@ export class PostgresStore {
         });
     }
 
-    public GetVMs = async (): Promise<IVirtualMachine[]> => {
-        return await VirtualMachine.findAll();
+    public GetVMs = async (excludeCleanedUp: boolean = true): Promise<IVirtualMachine[]> => {
+        if (excludeCleanedUp) {
+            return await VirtualMachine.findAll({
+                    where: {
+                        Status: { [Op.ne]: VirtualMachineStatus.CleanedUp }
+                    }
+                });
+        } else {
+            return await VirtualMachine.findAll();
+        }
     }
 
     public GetVM = async (id: number): Promise<VirtualMachine> => {

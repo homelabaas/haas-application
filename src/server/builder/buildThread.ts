@@ -102,7 +102,8 @@ export class BuildThread {
             `MINIO_URL=${minioUrl}`,
             `BUILDFOLDER=${folder}`,
             `PACKERJSONFILE=${buildType.File}`,
-            `FOLDER=${Dependencies().Settings.VCenterSettings.DefaultFolder}`
+            `FOLDER=${Dependencies().Settings.VCenterSettings.DefaultFolder}`,
+            `PACKER_DEBUG=true`
         ];
         if (buildConfig.ISO) {
             envSettings.push(`ISO=${buildConfig.ISO}`);

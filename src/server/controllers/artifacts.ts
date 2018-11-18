@@ -24,4 +24,16 @@ router.get("/", async (req: Request, res: Response) => {
     }
 });
 
+router.delete("/:id", async (req: Request, res: Response) => {
+    try {
+        // delete the artifact here
+    } catch (err) {
+        const returnValue: IGenericReturn = {
+            Success: false,
+            Message: err.message
+        };
+        res.json(returnValue);
+    }
+});
+
 export const ArtifactsController: Router = router;
