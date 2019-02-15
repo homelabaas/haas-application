@@ -34,6 +34,9 @@ export default class PackerBuildConfig extends Model<PackerBuildConfig> implemen
     public HostId: string;
 
     @Column
+    public Cluster: string;
+
+    @Column
     public ISO?: string;
 
     @Column

@@ -10,6 +10,7 @@ export interface IVcenter {
                       : Promise<vspherevim.vimService.vim.RetrieveResult>;
     BrowseDatastore(datastoreId: string, patternMatch: string): Promise<any[]>;
     GetHostById(hostId: string): Promise<any>;
+    GetClusterById(clusterId: string): Promise<any>;
     GetVMIdByName(vmName: string): Promise<string>;
     GetVMById(vmId: string): Promise<vspherevim.vimService.vim.ManagedObjectReference>;
     CloneVM(vm: vspherevim.vimService.vim.ManagedObjectReference, folderName: string, name: string,

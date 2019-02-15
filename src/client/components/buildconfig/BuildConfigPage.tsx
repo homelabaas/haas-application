@@ -57,7 +57,7 @@ class BuildConfigPageComponent extends React.Component<{}, IBuildConfigList> {
         const listItems = builds.map((build: IBuildConfig) => (
         <List.Item>
             <List.Content floated="right">
-                <Button onClick={this.ClickRun(build.Id, build.Name)} >Run</Button>
+                <Button onClick={() => { this.ClickRun(build.Id, build.Name); } } >Run</Button>
             </List.Content>
             <List.Content>
                 <Link to={buildConfigPageUrl(build.Id)}>

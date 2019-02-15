@@ -22,7 +22,7 @@ interface IISOSelectorData {
 const ISOSelectorComponent: React.StatelessComponent<IISOSelectorData> = (props: any) => {
     if (props.Requirement === "ISO") {
         return <Form.Field>
-            <label>ISO File</label>
+            <label>Select an ISO File</label>
             <Form.Select options={props.ISODatastores} placeholder="ISO Datastore"
                 onChange={props.DatastoreChange} value={props.SelectedDatastore} />
             <Dropdown placeholder="Select file" fluid search selection options={props.Filenames}

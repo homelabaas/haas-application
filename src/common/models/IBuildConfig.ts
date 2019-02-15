@@ -6,6 +6,7 @@ export interface IBuildConfig {
     AppendBuildNumber: boolean;
     Host: string;
     HostId: string;
+    Cluster: string;
     Datastore: string;
     Network: string;
     ISO?: string;

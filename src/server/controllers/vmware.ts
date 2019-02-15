@@ -75,6 +75,15 @@ router.get("/host/:id", async (req: Request, res: Response) => {
             .filter((p) => p.name === "network")[0].val
             .map((q) => q.value);
         const name = hostInfo.objects[0].propSet.filter((p) => p.name === "name")[0].val;
+        const parent = hostInfo.objects[0].propSet.filter((p) => p.name === "parent");
+        let clusterName = "";
+        if (parent.length === 1) {
+            if (parent[0].val.type === "ClusterComputeResource") {
+                const clusterId = parent[0].val.value;
+                const cluster = await Dependencies().VCenter.GetClusterById(clusterId);
+                clusterName = cluster.objects[0].propSet.filter((p) => p.name === "name")[0].val;
+            }
+        }
         const allDatastores = await Dependencies().VCenter.GetManagedObjects("Datastore");
         const dataStoreList = allDatastores.objects.map((p) => ({id: p.obj.value, name: p.propSet[0].val }));
         const allNetworks = await Dependencies().VCenter.GetManagedObjects("Network");
@@ -84,6 +93,7 @@ router.get("/host/:id", async (req: Request, res: Response) => {
         const returnObject: IHostInformation = {
             Datastores: returnDatastores,
             Networks: returnNetworks,
+            Cluster: clusterName,
             id: hostId,
             name
         };

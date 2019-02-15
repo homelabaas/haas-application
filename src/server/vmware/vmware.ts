@@ -283,6 +283,14 @@ export class VMWare implements IVcenter {
         return await this.GetEverything(host);
     }
 
+    public GetClusterById = async (clusterId: string): Promise<any> => {
+        const host = this.vimService.vim.ManagedObjectReference({
+            type: "ClusterComputeResource",
+            value: clusterId,
+        });
+        return await this.GetEverything(host);
+    }
+
     public GetVMById = async (vmId: string): Promise<vspherevim.vimService.vim.ManagedObjectReference> => {
         const vm = this.vimService.vim.ManagedObjectReference({
             type: "VirtualMachine",
