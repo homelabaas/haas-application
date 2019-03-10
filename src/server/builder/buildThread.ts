@@ -105,6 +105,9 @@ export class BuildThread {
             `FOLDER=${Dependencies().Settings.VCenterSettings.DefaultFolder}`,
             `PACKER_DEBUG=true`
         ];
+        if (buildConfig.Cluster) {
+            envSettings.push(`CLUSTER=${buildConfig.Cluster}`);
+        }
         if (buildConfig.ISO) {
             envSettings.push(`ISO=${buildConfig.ISO}`);
         }
