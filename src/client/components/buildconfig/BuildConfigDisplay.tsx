@@ -64,7 +64,7 @@ class BuildConfigDisplayComponent extends React.Component<IProps, IDisplayBuildC
         if (props.BuildConfig) {
             return (<div>
             <Button as={Link} to={editBuildConfigPageUrl(props.BuildConfig.Id)}>Edit</Button>
-            <Button onClick={() => { this.ClickRun(props.BuildConfig.Id, props.BuildConfig.BuildConfigName); } }>
+            <Button onClick={() => { this.ClickRun(props.BuildConfig.Id, props.BuildConfig.Name); } }>
                 Run
             </Button>
             <h3 className="ui dividing header">Builds</h3>
@@ -73,7 +73,7 @@ class BuildConfigDisplayComponent extends React.Component<IProps, IDisplayBuildC
         } else { return null; }
     }
 
-    public ClickRun = (buildId: number, name: string) => async (event: React.MouseEvent<HTMLElement>) => {
+    public ClickRun = async (buildId: number, name: string) => {
         const addItem: ICreateBuild = { BuildConfigId: buildId };
         const returnVal = await api.createBuild(addItem);
         if (returnVal.Success) {

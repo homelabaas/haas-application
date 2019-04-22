@@ -165,7 +165,6 @@ export const getBuildsAndArtifactsAll = async (): Promise<IBuildAndArtifact[]> =
     return returnValue.data as IBuildAndArtifact[];
 };
 
-
 export const provision = async (provisionDetails: IProvisionDetails): Promise<IProvisionTaskReturn> => {
     const returnValue = await axios.default.post(routeConstants.ProvisionUrl, provisionDetails);
     return returnValue.data as IProvisionTaskReturn;
