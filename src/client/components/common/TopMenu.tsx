@@ -19,8 +19,8 @@ const TopMenuComponent: React.StatelessComponent<{}> = (props) => {
             </Link>
             <Dropdown item simple text="Build">
                 <Dropdown.Menu>
+                <Dropdown.Item as={Link} to="/buildconfig">Build Configs</Dropdown.Item>
                     <Dropdown.Item as={Link} to="/builds">Builds</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/buildconfig">Configs</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
             <Dropdown item simple text="Compute">
