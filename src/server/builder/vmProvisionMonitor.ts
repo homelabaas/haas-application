@@ -12,16 +12,19 @@ export class VmProvisionMonitor {
     private Logger: bunyan;
     private SocketManager: SocketManager;
     private MinioConfig: IMinioSettings;
+    private VmManager: VmManager;
 
     constructor(postgresStore: PostgresStore,
                 socketManager: SocketManager,
                 logger: bunyan,
-                minioConfig: IMinioSettings) {
+                minioConfig: IMinioSettings,
+                VMManager: VmManager) {
         this.KeepRunning = true;
         this.PostgresStore = postgresStore;
         this.Logger = logger;
         this.SocketManager = socketManager;
         this.MinioConfig = minioConfig;
+        this.VmManager = VMManager;
     }
 
     public Run = () => {
@@ -52,10 +55,11 @@ export class VmProvisionMonitor {
                 const datastoreName = datastoreDetails.objects[0].propSet.filter((p) => p.name === "name")[0].val;
 
                 const phoneHomeUrl = Dependencies().Settings.ApplicationSettings.URL;
-                const provisionTask = new VmManager(vm.Id, this.SocketManager, this.Logger,
-                    this.PostgresStore);
-                setImmediate(() => { provisionTask.Provision(Dependencies().Settings.VCenterSettings.DefaultFolder,
-                    datastoreName, phoneHomeUrl, this.MinioConfig); });
+                setImmediate(() => { this.VmManager.Provision(vm.id,
+                    Dependencies().Settings.VCenterSettings.DefaultFolder,
+                    datastoreName,
+                    phoneHomeUrl,
+                    this.MinioConfig); });
             }
         } catch (err) {
             this.Logger.error(err.message);

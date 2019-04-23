@@ -12,6 +12,7 @@ import { BuildThread, IBuildContainerDefinition } from "./builder/buildThread";
 import { EnvironmentMonitor } from "./builder/environmentMonitor";
 import { SgMonitor } from "./builder/sgMonitor";
 import { VmCleanupManager } from "./builder/vmCleanupManager";
+import { VmManager } from "./builder/vmManager";
 import { VmProvisionMonitor } from "./builder/vmProvisionMonitor";
 import { VmTerminateMonitor } from "./builder/vmTerminateMonitor";
 import { sequelize } from "./data";
@@ -48,6 +49,7 @@ class DependencyManager {
 
     public PostgresStore: PostgresStore;
     public SocketManager: SocketManager;
+    public VMManager: VmManager;
     public Settings: ISettings;
     public ServerStatus: IStatus;
     public VCenter: IVcenter;
@@ -90,6 +92,7 @@ class DependencyManager {
         this.Settings = {};
         this.PostgresStore = new PostgresStore();
         this.SocketManager = new SocketManager(server, this.LogFolder);
+        this.VMManager = new VmManager(this.SocketManager, this.Logger, this.PostgresStore);
         if (isTestApiMode) {
             this.VCenter = new FakeVCenter();
         } else {
@@ -214,7 +217,8 @@ class DependencyManager {
                     this.PostgresStore,
                     this.SocketManager,
                     this.Logger,
-                    this.Settings.MinioSettings
+                    this.Settings.MinioSettings,
+                    this.VMManager
                 );
                 this.ServerStatus.VmProvisionManager = true;
                 setTimeout(() => { this.VmProvisionMonitor.Run(); }, 10000);
@@ -224,7 +228,8 @@ class DependencyManager {
                 this.VmTerminateMonitor = new VmTerminateMonitor(
                     this.PostgresStore,
                     this.SocketManager,
-                    this.Logger
+                    this.Logger,
+                    this.VMManager
                 );
                 setTimeout(() => { this.VmTerminateMonitor.Run(); }, 11000);
                 this.ServerStatus.VmTerminateManager = true;
@@ -234,7 +239,8 @@ class DependencyManager {
                 this.VmCleanupManager = new VmCleanupManager(
                     this.PostgresStore,
                     this.SocketManager,
-                    this.Logger
+                    this.Logger,
+                    this.VMManager
                 );
                 setTimeout(() => { this.VmCleanupManager.Run(); }, 10000);
                 this.ServerStatus.VmCleanupManager = true;

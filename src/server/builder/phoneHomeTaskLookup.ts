@@ -2,7 +2,7 @@
 interface ITaskVmLookup {
     vmwareVmId: string;
     internalVmId: number;
-    callbackMessage: () => void;
+    callbackMessage: (vmId: number) => void;
 }
 
 export class PhoneHomeTaskLookup {
@@ -14,14 +14,14 @@ export class PhoneHomeTaskLookup {
     public RegisterNewLookup = (
             vmwareVmId: string,
             internalVmId: number,
-            callbackMessage: () => void) => {
+            callbackMessage: (vmId: number) => void) => {
         this.Lookups.push({vmwareVmId, internalVmId, callbackMessage});
     }
 
     public PhoneHomeByVmid = async (vmwareVmId: string) => {
         const phoneHomeItem = this.Lookups.find((p) => p.vmwareVmId === vmwareVmId);
         if (phoneHomeItem) {
-            await phoneHomeItem.callbackMessage();
+            await phoneHomeItem.callbackMessage(phoneHomeItem.internalVmId);
             const index = this.Lookups.indexOf(phoneHomeItem);
             this.Lookups.splice(index, 1);
         }

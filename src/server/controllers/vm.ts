@@ -67,12 +67,11 @@ router.post("/", async (req: Request, res: Response) => {
             NetworkSegmentId: vmRequest.NetworkSegmentId,
             Tags: vmRequest.Tags
         };
-        const newVM = await Dependencies().PostgresStore.CreateNewVM(newVm);
-        Dependencies().SocketManager.SendVMUpdate(newVM);
+        const createdRequest = await Dependencies().VMManager.CreateNewRequest(newVm);
         const returnValue: IGenericReturn = {
             Success: true,
             Message: "",
-            NewId: newVM.Id
+            NewId: createdRequest.Id
         };
         res.json(returnValue);
     } catch (err) {

@@ -1,5 +1,5 @@
 export interface IEventLog {
-    Id: number;
+    Id?: number;
     ObjectType: string;
     ObjectId: number;
     DateTimeStamp: Date;

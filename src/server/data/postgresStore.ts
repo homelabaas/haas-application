@@ -1,10 +1,13 @@
 import { Moment } from "moment";
 import { Op } from "sequelize";
+import { EventLogLevel, EventLogLevelToString } from "../../common/EventLogLevel";
+import { EventLogType, EventLogTypeToString } from "../../common/EventLogType";
 import { BuildItemStatus } from "../../common/models/BuildItemStatus";
 import { IBuild } from "../../common/models/IBuild";
 import { IBuildAndArtifact } from "../../common/models/IBuildAndArtifact";
 import { IBuildOutputLine } from "../../common/models/IBuildOutputLine";
 import { IEnvironment } from "../../common/models/IEnvironment";
+import { IEventLog } from "../../common/models/IEventLog";
 import { INetworkSegment } from "../../common/models/INetworkSegment";
 import { IScalingGroup } from "../../common/models/IScalingGroup";
 import { IVirtualMachine } from "../../common/models/IVirtualMachine";
@@ -17,6 +20,7 @@ import Artifact from "./models/Artifact";
 import BuilderDefinition from "./models/BuilderDefinition";
 import Environment from "./models/Environment";
 import EnvironmentSetting from "./models/EnvironmentSetting";
+import EventLog from "./models/EventLog";
 import NetworkIPAssignment from "./models/NetworkIPAssignment";
 import NetworkSegment from "./models/NetworkSegment";
 import PackerBuild from "./models/PackerBuild";
@@ -28,6 +32,22 @@ import VirtualMachine from "./models/VirtualMachine";
 import VMSpec from "./models/VMSpec";
 
 export class PostgresStore {
+
+    public CreateEventLog = async (eventLogType: EventLogType,
+                                   message: string,
+                                   level: EventLogLevel,
+                                   objectId: number) => {
+        const writeEventLog: IEventLog = {
+            DateTimeStamp: new Date(),
+            EventText: message,
+            Level: EventLogLevelToString(level),
+            ObjectId: objectId,
+            ObjectType: EventLogTypeToString(eventLogType)
+        };
+        const createEventLog = EventLog.build(writeEventLog);
+        await createEventLog.save();
+        return createEventLog;
+    }
 
     public CreateNewEnvironment = async (environment: IEnvironment) => {
         const saveEnv = Environment.build(environment);

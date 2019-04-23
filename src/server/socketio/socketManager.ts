@@ -4,12 +4,14 @@ import * as config from "config";
 import * as http from "http";
 import * as path from "path";
 import * as socketio from "socket.io";
+import { StringToEventLogType } from "../../common/EventLogType";
 import { IEnvironment } from "../../common/models/IEnvironment";
+import { IEventLog } from "../../common/models/IEventLog";
 import { IScalingGroup } from "../../common/models/IScalingGroup";
 import { IVirtualMachine } from "../../common/models/IVirtualMachine";
 import { Dependencies } from "../dependencyManager";
 import { IBuildOutputLine } from "./../../common/models/IBuildOutputLine";
-import { BuildConfigListUpdate, BuildLogUpdate, EnvUpdate, SGUpdate, VMUpdate } from "./../../common/socketEventDefinitions";
+import { BuildConfigListUpdate, BuildLogUpdate, EnvUpdate, EventLogUpdate, SGUpdate, VMUpdate } from "./../../common/socketEventDefinitions";
 
 export class SocketManager {
     public io: socketio.Server;
@@ -31,6 +33,13 @@ export class SocketManager {
 
     public Initialize = () => {
         this.Logger.info("Initialise Socket Manager");
+    }
+
+    public SendEventLogUpdate = (EventLogDetails: IEventLog) => {
+        const eventLogType = StringToEventLogType(EventLogDetails.ObjectType);
+        this.Logger.info({EventLogDetails}, "Socket IO send EventLog update to: "
+            + EventLogUpdate(eventLogType));
+        this.io.emit(EventLogUpdate(eventLogType), EventLogDetails);
     }
 
     public SendVMUpdate = (VMDetails: IVirtualMachine) => {

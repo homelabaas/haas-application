@@ -9,14 +9,17 @@ export class VmTerminateMonitor {
     private KeepRunning: boolean;
     private Logger: bunyan;
     private SocketManager: SocketManager;
+    private VmManager: VmManager;
 
     constructor(postgresStore: PostgresStore,
                 socketManager: SocketManager,
-                logger: bunyan) {
+                logger: bunyan,
+                vmManager: VmManager) {
         this.KeepRunning = true;
         this.PostgresStore = postgresStore;
         this.Logger = logger;
         this.SocketManager = socketManager;
+        this.VmManager = vmManager;
     }
 
     public Run = () => {
@@ -38,9 +41,7 @@ export class VmTerminateMonitor {
                 vmUpdate.Status = VirtualMachineStatus.Terminating;
                 await this.PostgresStore.SaveVM(vmUpdate);
                 this.SocketManager.SendVMUpdate(vmUpdate);
-                const terminateTask = new VmManager(vm.Id, this.SocketManager, this.Logger,
-                    this.PostgresStore);
-                setImmediate(terminateTask.TerminateVm);
+                setImmediate(async () => { await this.VmManager.TerminateVm(vmUpdate.Id); });
             }
         } catch (err) {
             this.Logger.error(err.message);
