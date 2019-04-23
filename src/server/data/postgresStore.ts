@@ -36,7 +36,8 @@ export class PostgresStore {
     public CreateEventLog = async (eventLogType: EventLogType,
                                    message: string,
                                    level: EventLogLevel,
-                                   objectId: number) => {
+                                   objectId: number,
+                                   eventData?: any) => {
         const writeEventLog: IEventLog = {
             DateTimeStamp: new Date(),
             EventText: message,
@@ -44,6 +45,9 @@ export class PostgresStore {
             ObjectId: objectId,
             ObjectType: EventLogTypeToString(eventLogType)
         };
+        if (eventData) {
+            writeEventLog.StructuredEventData = eventData;
+        }
         const createEventLog = EventLog.build(writeEventLog);
         await createEventLog.save();
         return createEventLog;

@@ -55,7 +55,7 @@ export class VmProvisionMonitor {
                 const datastoreName = datastoreDetails.objects[0].propSet.filter((p) => p.name === "name")[0].val;
 
                 const phoneHomeUrl = Dependencies().Settings.ApplicationSettings.URL;
-                setImmediate(() => { this.VmManager.Provision(vm.id,
+                setImmediate(() => { this.VmManager.Provision(vm.Id,
                     Dependencies().Settings.VCenterSettings.DefaultFolder,
                     datastoreName,
                     phoneHomeUrl,
