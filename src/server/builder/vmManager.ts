@@ -62,7 +62,7 @@ export class VmManager {
             const vmToClone = await Dependencies().VCenter.GetVMById(artifact.ResourceId);
             const vmSpec = await this.PostgresStore.GetVMSpec(vm.VMSpecId);
             this.Logger.info({VmId: vmId, vmToClone, vmSpec}, `Provision new VM. Begin clone.`);
-            await this.LogEventInfo(`Clone`, vmId);
+            await this.LogEventInfo(`Clone from artifact ${artifact.Name} VM id: ${vmToClone.value}`, vmId);
             await this.updateStatus(vmId, VirtualMachineStatus.Clone);
 
             const newVm = await Dependencies().VCenter.CloneVM(vmToClone, targetFolder,
