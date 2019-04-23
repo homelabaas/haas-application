@@ -134,8 +134,10 @@ export class SgMonitor {
                     case ScalingGroupStatus.ScalingUp:
                     case ScalingGroupStatus.ScalingDown:
                         if (await this.checkAndCreateOrDeleteServer(sg)) {
-                            sg.Status = ScalingGroupStatus.Stable;
-                            await this.updateSg(sg);
+                            if (sg.Status !== ScalingGroupStatus.Stable) {
+                                sg.Status = ScalingGroupStatus.Stable;
+                                await this.updateSg(sg);
+                            }
                         }
                         break;
                     case ScalingGroupStatus.OrderTerminate:

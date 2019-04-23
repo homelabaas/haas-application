@@ -242,9 +242,9 @@ class DependencyManager {
                     this.Logger,
                     this.VMManager
                 );
-                setTimeout(() => { this.VmCleanupManager.Run(); }, 10000);
+                setTimeout(() => { this.VmCleanupManager.Run(); }, 60000);
                 this.ServerStatus.VmCleanupManager = true;
-                this.Logger.info("VM Cleanup Manager polling every 5 minutes.");
+                this.Logger.info("VM Cleanup Manager polling every 1 minute.");
             }
             if (!this.ServerStatus.SgManager) {
                 this.SgMonitor = new SgMonitor(

@@ -25,7 +25,7 @@ export class VmCleanupManager {
     public Run = () => {
         this.CheckOldTerminatedVMs().then(() => {
             if (this.KeepRunning) {
-                setTimeout(() => { this.Run(); }, 5 * 60 * 1000);
+                setTimeout(() => { this.Run(); }, 60000);
             }
         });
     }
