@@ -141,6 +141,7 @@ export class VmManager {
             const vmToTerminate = await Dependencies().VCenter.GetVMById(vm.ResourceId);
             this.Logger.info(`Deleting VM id: ${vm.Id} name: ${vm.MachineName} vmId: ${vm.ResourceId}`);
             await Dependencies().VCenter.DestroyVMByMob(vmToTerminate);
+            await this.LogEventInfo("Clean up and delete image", vmId);
             await this.updateStatus(vmId, VirtualMachineStatus.CleanedUp, false, true);
         } catch (err) {
             this.Logger.error(`Error running cleanup for vm: ${vmId}`);
