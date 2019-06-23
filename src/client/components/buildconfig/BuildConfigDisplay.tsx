@@ -64,14 +64,16 @@ class BuildConfigDisplayComponent extends React.Component<IProps, IDisplayBuildC
         if (props.BuildConfig) {
             return (<div>
             <Button as={Link} to={editBuildConfigPageUrl(props.BuildConfig.Id)}>Edit</Button>
-            <Button onClick={this.ClickRun(props.BuildConfig.Id, props.BuildConfig.BuildConfigName)}>Run</Button>
+            <Button onClick={() => { this.ClickRun(props.BuildConfig.Id, props.BuildConfig.Name); } }>
+                Run
+            </Button>
             <h3 className="ui dividing header">Builds</h3>
             <BuildList Id={this.state.BuildConfig.Id} />
             </div>);
         } else { return null; }
     }
 
-    public ClickRun = (buildId: number, name: string) => async (event: React.MouseEvent<HTMLElement>) => {
+    public ClickRun = async (buildId: number, name: string) => {
         const addItem: ICreateBuild = { BuildConfigId: buildId };
         const returnVal = await api.createBuild(addItem);
         if (returnVal.Success) {
@@ -98,7 +100,7 @@ class BuildConfigDisplayComponent extends React.Component<IProps, IDisplayBuildC
                 <Link to="/buildconfig"><Icon name="angle double left" />Build Configurations</Link>
                 <h3 className="ui dividing header">Build Configuration</h3>
                 <Grid celled container stackable>
-                    <Grid.Row columns={2}>
+                    <Grid.Row columns={3}>
                         <Grid.Column>
                             <h3>Name</h3>
                             <div>{this.state.BuildConfig ? this.state.BuildConfig.Name : ""}</div>
@@ -106,6 +108,10 @@ class BuildConfigDisplayComponent extends React.Component<IProps, IDisplayBuildC
                         <Grid.Column>
                             <h3>VM Name</h3>
                             <div>{this.state.BuildConfig ? this.state.BuildConfig.VMName : ""}</div>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <h3>Cluster</h3>
+                            <div>{this.state.BuildConfig ? this.state.BuildConfig.Cluster : ""}</div>
                         </Grid.Column>
                     </Grid.Row>
                     <Grid.Row columns={3}>

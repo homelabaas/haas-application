@@ -1,6 +1,6 @@
 import * as React from "react";
 import { hot } from "react-hot-loader";
-import { Dropdown, Button, Modal, Header, Icon, Form, TextArea, Label, Checkbox } from "semantic-ui-react";
+import { Dropdown, Button, Modal, Header, Icon, Form, TextArea, Label, Checkbox, Message } from "semantic-ui-react";
 import * as api from "../../api";
 import { IBuildType } from "../../../common/models/IBuildType";
 import { ICreateVMRequest } from "../../../common/models/ICreateVMRequest";
@@ -27,6 +27,13 @@ interface ICreateVMState {
     UserData: string;
     Tags: IDictionary<string>;
     PhoneHome: boolean;
+    ValidationMessage: IValidationMessage;
+}
+
+interface IValidationMessage {
+    ValidationHeader: string;
+    ValidationBody: string;
+    IsValid: boolean;
 }
 
 class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
@@ -48,13 +55,18 @@ class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
             VMName: "",
             UserData: "",
             Tags: {},
-            PhoneHome: true
+            PhoneHome: true,
+            ValidationMessage: {
+                ValidationBody: "",
+                ValidationHeader: "",
+                IsValid: true
+            }
         };
     }
 
     public async componentDidMount() {
         const vmSpecs = await api.getVMSpecs();
-        const buildsAndArtifacts = await api.getBuildsAndArtifacts("UserData");
+        const buildsAndArtifacts = await api.getBuildsAndArtifactsByType("UserData");
         const networkSegments = await api.getNetworkSegments();
         this.loadedUserData = await api.getBuildTypesByType("Provisioner");
         this.setState({
@@ -235,9 +247,12 @@ class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
                                 name="UNIQUE_ID_OF_DIV"
                                 value={this.state.UserData}
                                 editorProps={{$blockScrolling: true}}
+                                height="300px"
                             />
                         </Form.Field>
                     </Form>
+
+                    <this.ValidationMessageDisplay validationMessage={this.state.ValidationMessage} />
                 </Modal.Content>
                 <Modal.Actions>
                     <Button color="green" onClick={this.handleCreate} inverted>
@@ -245,6 +260,20 @@ class CreateVMModalComponent extends React.Component<{}, ICreateVMState> {
                     </Button>
                 </Modal.Actions>
             </Modal>);
+    }
+
+    private ValidationMessageDisplay = (props: any): any => {
+        const validationMessage = props.validationMessage as IValidationMessage;
+        if (validationMessage.IsValid) {
+            return null;
+        } else {
+            return (<Message error>
+                <Message.Content>
+                    <Message.Header>{validationMessage.ValidationHeader}</Message.Header>
+                    {validationMessage.ValidationBody}
+                </Message.Content>
+            </Message>);
+        }
     }
 }
 

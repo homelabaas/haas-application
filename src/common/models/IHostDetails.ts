@@ -9,6 +9,7 @@ export interface IHostDetails {
             id: string;
             name: string;
         }];
+    Cluster: string;
     id: string;
     name: string;
 }

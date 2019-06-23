@@ -1,23 +1,30 @@
 {
-    "version": "0.1.0",
-    "command": "npm",
-    "isShellCommand": true,
-    "showOutput": "always",
-    "suppressTaskName": true,
+    "version": "2.0.0",
     "tasks": [
         {
-            "taskName": "dev:build",
+            "type": "shell",
+            "command": "node_modules\\.bin\\rimraf.cmd",
             "args": [
-                "run",
-                "dev:build"
-            ]
+                "build"
+            ],
+            "label": "Clean",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
         },
         {
-            "taskName": "watch",
-            "args": [
-                "run",
-                "watch"
-            ]
+            "type": "typescript",
+            "tsconfig": "src\\server\\tsconfig.json",
+            "label": "Build",
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         }
     ]
 }

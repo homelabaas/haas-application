@@ -14,16 +14,14 @@ services:
     image: minio/minio
     ports:
       - "9000:9000"
-    volumes:
-      - "./data/minio/data:/data"
-      - "./data/minio/config:/root/.minio"
+    environment:
+      MINIO_ACCESS_KEY: testaccesskey
+      MINIO_SECRET_KEY: testsecretkey
     command: [ "server", "/data"]
   postgres:
     container_name: postgres
     image: postgres
     ports:
       - "5432:5432"
-    volumes:
-      - ./data/postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: devpostgrespwd

@@ -19,8 +19,8 @@ const TopMenuComponent: React.StatelessComponent<{}> = (props) => {
             </Link>
             <Dropdown item simple text="Build">
                 <Dropdown.Menu>
+                <Dropdown.Item as={Link} to="/buildconfig">Build Configs</Dropdown.Item>
                     <Dropdown.Item as={Link} to="/builds">Builds</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/buildconfig">Configs</Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>
             <Dropdown item simple text="Compute">
@@ -32,7 +32,12 @@ const TopMenuComponent: React.StatelessComponent<{}> = (props) => {
                 </Dropdown.Menu>
             </Dropdown>
             <Menu.Item as={Link} to="/network">Network</Menu.Item>
-            <Menu.Item as={Link} to="/storage">Storage</Menu.Item>
+            <Dropdown item simple text="Storage">
+                <Dropdown.Menu>
+                    <Dropdown.Item as={Link} to="/storage">Files</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/artifacts">Artifacts</Dropdown.Item>
+                </Dropdown.Menu>
+            </Dropdown>
             <Dropdown item simple text="Admin">
                 <Dropdown.Menu>
                     <Dropdown.Item as={Link} to="/settings">Settings</Dropdown.Item>

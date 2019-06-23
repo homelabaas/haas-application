@@ -1,5 +1,7 @@
 import * as btoa from "btoa";
 import * as bunyan from "bunyan";
+import { EventLogLevel } from "../../common/EventLogLevel";
+import { EventLogType } from "../../common/EventLogType";
 import { EnvironmentStatus } from "../../common/models/EnvironmentStatus";
 import { IEnvironment } from "../../common/models/IEnvironment";
 import { IMinioSettings } from "../../common/models/IMinioSettings";
@@ -30,6 +32,21 @@ export class EnvironmentMonitor {
         this.SocketManager = socketManager;
         this.MinioManager = minioManager;
         this.MinioConfig = minioConfig;
+    }
+
+    public LogEventInfo = async (message: string, vmId: number, eventdata?: any) => {
+        await this.PostgresStore.CreateEventLog(EventLogType.Environment,
+            message, EventLogLevel.Info, vmId, eventdata);
+    }
+
+    public LogEventWarning = async (message: string, vmId: number, eventdata?: any) => {
+        await this.PostgresStore.CreateEventLog(EventLogType.Environment,
+            message, EventLogLevel.Warning, vmId, eventdata);
+    }
+
+    public LogEventError = async (message: string, vmId: number, eventdata?: any) => {
+        await this.PostgresStore.CreateEventLog(EventLogType.Environment,
+            message, EventLogLevel.Error, vmId, eventdata);
     }
 
     public Run = () => {
@@ -69,6 +86,7 @@ export class EnvironmentMonitor {
         };
         const sg = await this.PostgresStore.CreateNewSG(createSg);
         this.SocketManager.SendSGUpdate(sg);
+        await this.LogEventInfo("Create new SG: " + createSg.BaseMachineName, env.Id);
     }
 
     private terminateScalingGroup = async (env: IEnvironment) => {
@@ -77,6 +95,7 @@ export class EnvironmentMonitor {
         sg.Status = VirtualMachineStatus.OrderTerminate;
         await this.PostgresStore.SaveSG(sg);
         this.SocketManager.SendSGUpdate(sg);
+        await this.LogEventInfo("Terminate SG: " + sg.BaseMachineName, env.Id);
     }
 
     private checkAndCreateOrDeleteSG = async (env: IEnvironment): Promise<boolean> => {
@@ -96,9 +115,13 @@ export class EnvironmentMonitor {
         }
         if (unterminatedScalingGroups.length < desiredCount && allSGsReady) {
             const createIndex = unterminatedScalingGroups.length;
+            await this.LogEventInfo("Scaling Groups under the desired number. Initiating the creation of a new one.",
+                env.Id);
             this.createScalingGroup(env, createIndex);
         }
         if (unterminatedScalingGroups.length > desiredCount && allSGsReady) {
+            await this.LogEventInfo("Terminating SGs continuing on to next one.",
+                env.Id);
             this.terminateScalingGroup(env);
         }
         return (allSGsReady && unterminatedScalingGroups.length === desiredCount);

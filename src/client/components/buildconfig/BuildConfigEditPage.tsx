@@ -1,7 +1,7 @@
 import * as React from "react";
 import { hot } from "react-hot-loader";
 import { Link } from "react-router-dom";
-import { Button, Checkbox, Form, Message, Dropdown } from "semantic-ui-react";
+import { Button, Checkbox, Form, Message, Dropdown, Label, Input } from "semantic-ui-react";
 import * as api from "../../api";
 import { IBuildConfig } from "../../../common/models/IBuildConfig";
 import { MessageDisplay } from "../common/MessageDisplay";
@@ -31,6 +31,7 @@ interface IEditBuildConfigState {
     Host: string;
     HostId: string;
     HostSelected: boolean;
+    Cluster: string;
     Datastore: string;
     Network: string;
     ISO: string;
@@ -62,6 +63,7 @@ class BuildConfigEditPageComponent extends React.Component<IProps, IEditBuildCon
             Host: "",
             HostId: "",
             HostSelected: false,
+            Cluster: "",
             Datastore: "",
             Network: "",
             ISO: null,
@@ -118,6 +120,7 @@ class BuildConfigEditPageComponent extends React.Component<IProps, IEditBuildCon
                 VMName: loadBuildConfig.VMName,
                 Host: loadBuildConfig.Host,
                 HostId: loadBuildConfig.HostId,
+                Cluster: loadBuildConfig.Cluster,
                 HostSelected: true,
                 Datastore: loadBuildConfig.Datastore,
                 Network: loadBuildConfig.Network,
@@ -157,6 +160,7 @@ class BuildConfigEditPageComponent extends React.Component<IProps, IEditBuildCon
           Host: hostDetails.name,
           HostId: data.value,
           HostSelected: true,
+          Cluster: hostDetails.Cluster,
           Networks: hostDetails.Networks.map((p) => ({ key: p.name, value: p.name, text: p.name})),
           Datastores: hostDetails.Datastores.map((p) => ({ key: p.name, value: p.name, text: p.name})),
           ISODatastores: hostDetails.Datastores.map((p) => ({ key: p.id, value: p.id, text: p.name})),
@@ -223,6 +227,7 @@ class BuildConfigEditPageComponent extends React.Component<IProps, IEditBuildCon
             Datastore: this.state.Datastore,
             Host: this.state.Host,
             HostId: this.state.HostId,
+            Cluster: this.state.Cluster,
             ISO: this.state.ISO,
             Network: this.state.Network,
             TemplatePackerBuildId: this.state.Template,
@@ -257,39 +262,63 @@ class BuildConfigEditPageComponent extends React.Component<IProps, IEditBuildCon
     public render() {
         return (
             <Form>
-                <h4 className="ui dividing header">Build Configuration</h4>
+                <h3 className="ui dividing header">Build Configuration</h3>
                 <Form.Field>
+                    <label>Build Definition</label>
                     <Dropdown fluid search selection value={this.state.BuildTypeId} options={this.state.BuildTypes}
                         placeholder="Build Type" onChange={this.handleBuildTypeChange} name="BuildTypeId" />
                 </Form.Field>
                 <Form.Group widths="equal">
-                    <Form.Field>
+                    <Form.Field required>
                         <label>Build Config Name</label>
-                        <input placeholder="Name" value={this.state.BuildConfigName}
+                        <Input placeholder="Name" value={this.state.BuildConfigName}
                             onChange={this.handleInputChange} name="BuildConfigName" />
                     </Form.Field>
-                    <Form.Field>
+                    <Form.Field required>
                         <label>VM Name</label>
-                        <input placeholder="VM Name" value={this.state.VMName}
+                        <Input placeholder="VM Name" value={this.state.VMName}
                             onChange={this.handleInputChange} name="VMName" />
+                    </Form.Field>
+                </Form.Group>
+                <Form.Group widths="equal">
+                    <Form.Field required>
+                        <label>SSH Username</label>
+                        <Input placeholder="SSH Username" value={this.state.SSHUsername}
+                            onChange={this.handleInputChange} name="SSHUsername" />
+                    </Form.Field>
+                    <Form.Field required>
+                        <label>SSH Password</label>
+                        <Input placeholder="SSH Password" value={this.state.SSHPassword}
+                            onChange={this.handleInputChange} name="SSHPassword" />
                     </Form.Field>
                 </Form.Group>
                 <Form.Field>
                     <Checkbox checked={this.state.AppendBuildNumber} label="Append Build Number"
                         onChange={this.handleInputChange} name="AppendBuildNumber" />
                 </Form.Field>
-                <Form.Field>
-                    <Form.Select value={this.state.HostId} options={this.state.Hosts} placeholder="Host"
-                        onChange={this.handleHostChange} />
-                </Form.Field>
-                <Form.Field>
-                    <Form.Select value={this.state.Datastore} options={this.state.Datastores} placeholder="Datastore"
-                        onChange={this.handleDropwdownChange} name="Datastore" />
-                </Form.Field>
-                <Form.Field>
-                    <Form.Select value={this.state.Network} options={this.state.Networks} placeholder="Network"
-                        onChange={this.handleDropwdownChange} name="Network" />
-                </Form.Field>
+                <Form.Group widths="equal">
+                    <Form.Field>
+                        <label>Host</label>
+                        <Form.Select value={this.state.HostId} options={this.state.Hosts} placeholder="Host"
+                            onChange={this.handleHostChange} />
+                    </Form.Field>
+                    <Form.Field>
+                        <label>Cluster</label>
+                        <Input value={this.state.Cluster} readOnly />
+                    </Form.Field>
+                </Form.Group>
+                <Form.Group widths="equal">
+                    <Form.Field>
+                        <label>Datastore</label>
+                        <Form.Select value={this.state.Datastore} options={this.state.Datastores} placeholder="Datastore"
+                            onChange={this.handleDropwdownChange} name="Datastore" />
+                    </Form.Field>
+                    <Form.Field>
+                        <label>Network</label>
+                        <Form.Select value={this.state.Network} options={this.state.Networks} placeholder="Network"
+                            onChange={this.handleDropwdownChange} name="Network" />
+                    </Form.Field>
+                </Form.Group>
                 <ISOSelector Filenames={this.state.Filenames}
                     Requirement={this.state.Requirement}
                     ISODatastores={this.state.ISODatastores}
@@ -301,18 +330,6 @@ class BuildConfigEditPageComponent extends React.Component<IProps, IEditBuildCon
                     SelectedTemplate={this.state.Template}
                     TemplateChange={this.handleTemplateChange}
                     Requirement={this.state.Requirement} />
-                <Form.Group widths="equal">
-                    <Form.Field>
-                        <label>SSH Username</label>
-                        <input placeholder="SSH Username" value={this.state.SSHUsername}
-                            onChange={this.handleInputChange} name="SSHUsername" />
-                    </Form.Field>
-                    <Form.Field>
-                        <label>SSH Password</label>
-                        <input placeholder="SSH Password" value={this.state.SSHPassword}
-                            onChange={this.handleInputChange} name="SSHPassword" />
-                    </Form.Field>
-                </Form.Group>
                 <Button onClick={this.ClickSave}>Save</Button>
                 <MessageDisplay messageState={this.state.MessageState} message={this.state.Message} />
             </Form>

@@ -142,6 +142,7 @@
         "nyc": "^11.7.1",
         "request": "^2.87.0",
         "rimraf": "^2.6.2",
+        "sequelize-cli": "^5.4.0",
         "source-map-loader": "^0.2.3",
         "style-loader": "^0.21.0",
         "ts-loader": "^4.2.0",

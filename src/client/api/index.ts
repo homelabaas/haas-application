@@ -155,8 +155,13 @@ export const getBuildType = async (id: string): Promise<IBuildType> => {
     return returnValue.data as IBuildType;
 };
 
-export const getBuildsAndArtifacts = async (type: string): Promise<IBuildAndArtifact[]> => {
+export const getBuildsAndArtifactsByType = async (type: string): Promise<IBuildAndArtifact[]> => {
     const returnValue = await axios.default.get(`${routeConstants.ArtifactsUrl}?type=${type}`);
+    return returnValue.data as IBuildAndArtifact[];
+};
+
+export const getBuildsAndArtifactsAll = async (): Promise<IBuildAndArtifact[]> => {
+    const returnValue = await axios.default.get(`${routeConstants.ArtifactsUrl}`);
     return returnValue.data as IBuildAndArtifact[];
 };
 

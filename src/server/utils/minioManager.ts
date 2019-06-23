@@ -65,7 +65,7 @@ export class MinioManager {
             "",
             ["s3:ObjectCreated:*", "s3:ObjectRemoved:*"]);
         notificationFunction.on("notification", async (record) => {
-            const key = record.s3.object.key;
+            const key = decodeURIComponent(record.s3.object.key);
             const eventName = record.eventName;
             if (path.basename(key) === BuilderFilenameConstant) {
                 this.Logger.debug(`Updating ${key} due to event ${eventName}`);
@@ -83,9 +83,9 @@ export class MinioManager {
     }
 
     public InsertOrUpdateBuilderFile = async (minioKey: string) => {
-        const filePath = this.MinioKeyToFilePath(minioKey);
+        //const filePath = this.MinioKeyToFilePath(minioKey);
         this.PostgresStore.InsertOrUpdateBuildType(await
-            this.LoadBuilderDefinitionFromMinio(this.BuilderDefinitionsBucketName, filePath));
+            this.LoadBuilderDefinitionFromMinio(this.BuilderDefinitionsBucketName, minioKey));
     }
 
     public ReloadBuilderYamlFiles = async () => {

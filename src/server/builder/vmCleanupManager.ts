@@ -9,20 +9,23 @@ export class VmCleanupManager {
     private KeepRunning: boolean;
     private Logger: bunyan;
     private SocketManager: SocketManager;
+    private VmManager: VmManager;
 
     constructor(postgresStore: PostgresStore,
                 socketManager: SocketManager,
-                logger: bunyan) {
+                logger: bunyan,
+                vmManager: VmManager) {
         this.KeepRunning = true;
         this.PostgresStore = postgresStore;
         this.Logger = logger;
         this.SocketManager = socketManager;
+        this.VmManager = vmManager;
     }
 
     public Run = () => {
         this.CheckOldTerminatedVMs().then(() => {
             if (this.KeepRunning) {
-                setTimeout(() => { this.Run(); }, 5 * 60 * 1000);
+                setTimeout(() => { this.Run(); }, 60000);
             }
         });
     }
@@ -35,10 +38,7 @@ export class VmCleanupManager {
                 this.Logger.info(`Found ${newVMs.length} VMs to clean up.`);
             }
             for (const vm of newVMs) {
-                const vmUpdate = await this.PostgresStore.GetVM(vm.Id);
-                const terminateTask = new VmManager(vm.Id, this.SocketManager, this.Logger,
-                    this.PostgresStore);
-                setImmediate(terminateTask.CleanUp);
+                setImmediate(async () => { await this.VmManager.CleanUp(vm.Id); });
             }
         } catch (err) {
             this.Logger.error(err.message);

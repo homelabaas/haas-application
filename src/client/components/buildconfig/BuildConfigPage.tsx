@@ -27,7 +27,7 @@ class BuildConfigPageComponent extends React.Component<{}, IBuildConfigList> {
         }
     }
 
-    public ClickRun = (buildId: number, name: string) => async (event: React.MouseEvent<HTMLElement>) => {
+    public ClickRun = async (buildId: number, name: string) => {
         const addItem: ICreateBuild = { BuildConfigId: buildId };
         const returnVal = await api.createBuild(addItem);
         if (returnVal.Success) {
@@ -57,7 +57,7 @@ class BuildConfigPageComponent extends React.Component<{}, IBuildConfigList> {
         const listItems = builds.map((build: IBuildConfig) => (
         <List.Item>
             <List.Content floated="right">
-                <Button onClick={this.ClickRun(build.Id, build.Name)} >Run</Button>
+                <Button onClick={() => { this.ClickRun(build.Id, build.Name); } } >Run</Button>
             </List.Content>
             <List.Content>
                 <Link to={buildConfigPageUrl(build.Id)}>

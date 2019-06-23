@@ -1,5 +1,7 @@
 import * as bunyan from "bunyan";
 import * as catnames from "cat-names";
+import { EventLogLevel } from "../../common/EventLogLevel";
+import { EventLogType } from "../../common/EventLogType";
 import { IScalingGroup } from "../../common/models/IScalingGroup";
 import { IVirtualMachine } from "../../common/models/IVirtualMachine";
 import { ScalingGroupStatus } from "../../common/models/ScalingGroupStatus";
@@ -20,6 +22,21 @@ export class SgMonitor {
         this.PostgresStore = postgresStore;
         this.Logger = logger;
         this.SocketManager = socketManager;
+    }
+
+    public LogEventInfo = async (message: string, vmId: number, eventdata?: any) => {
+        await this.PostgresStore.CreateEventLog(EventLogType.ScalingGroup,
+            message, EventLogLevel.Info, vmId, eventdata);
+    }
+
+    public LogEventWarning = async (message: string, vmId: number, eventdata?: any) => {
+        await this.PostgresStore.CreateEventLog(EventLogType.ScalingGroup,
+            message, EventLogLevel.Warning, vmId, eventdata);
+    }
+
+    public LogEventError = async (message: string, vmId: number, eventdata?: any) => {
+        await this.PostgresStore.CreateEventLog(EventLogType.ScalingGroup,
+            message, EventLogLevel.Error, vmId, eventdata);
     }
 
     public Run = () => {
@@ -57,6 +74,7 @@ export class SgMonitor {
         };
         const vm = await this.PostgresStore.CreateNewVM(createVm);
         this.SocketManager.SendVMUpdate(vm);
+        await this.LogEventInfo("Create new VM: " + createVm.MachineName, sg.Id);
     }
 
     private terminateVirtualMachine = async (sg: IScalingGroup) => {
@@ -64,6 +82,7 @@ export class SgMonitor {
         const vm = await this.PostgresStore.GetVM(vmToTerminate.Id);
         vm.Status = VirtualMachineStatus.OrderTerminate;
         await this.PostgresStore.SaveVM(vm);
+        await this.LogEventInfo("Order termination of VM: " + vm.MachineName, sg.Id);
         this.SocketManager.SendVMUpdate(vm);
     }
 
@@ -83,9 +102,11 @@ export class SgMonitor {
             }
         }
         if (unterminatedServers.length < desiredCount && allServersReady) {
+            await this.LogEventInfo("Current server count under capacity, provisioning new VM.", sg.Id);
             this.createVirtualMachine(sg);
         }
         if (unterminatedServers.length > desiredCount && allServersReady) {
+            await this.LogEventInfo("Attempting termination of SG, terminating existing VM.", sg.Id);
             this.terminateVirtualMachine(sg);
         }
         return (allServersReady && unterminatedServers.length === desiredCount);
@@ -108,12 +129,15 @@ export class SgMonitor {
                         this.updateSg(sg);
                         await this.checkAndCreateOrDeleteServer(sg);
                         break;
+                    case ScalingGroupStatus.Stable:
                     case ScalingGroupStatus.Creating:
                     case ScalingGroupStatus.ScalingUp:
                     case ScalingGroupStatus.ScalingDown:
                         if (await this.checkAndCreateOrDeleteServer(sg)) {
-                            sg.Status = ScalingGroupStatus.Stable;
-                            await this.updateSg(sg);
+                            if (sg.Status !== ScalingGroupStatus.Stable) {
+                                sg.Status = ScalingGroupStatus.Stable;
+                                await this.updateSg(sg);
+                            }
                         }
                         break;
                     case ScalingGroupStatus.OrderTerminate:

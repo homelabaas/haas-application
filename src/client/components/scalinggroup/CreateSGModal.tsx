@@ -23,6 +23,7 @@ interface ICreateSGState {
     EnvironmentName: string;
     DesiredCount: number;
     Tags: IDictionary<string>;
+    PhoneHome: boolean;
 }
 
 class CreateSGModalComponent extends React.Component<{}, ICreateSGState> {
@@ -45,13 +46,14 @@ class CreateSGModalComponent extends React.Component<{}, ICreateSGState> {
             UserData: "",
             EnvironmentName: "",
             DesiredCount: 0,
-            Tags: {}
+            Tags: {},
+            PhoneHome: true
         };
     }
 
     public async componentDidMount() {
         const vmSpecs = await api.getVMSpecs();
-        const buildsAndArtifacts = await api.getBuildsAndArtifacts("UserData");
+        const buildsAndArtifacts = await api.getBuildsAndArtifactsByType("UserData");
         const networkSegments = await api.getNetworkSegments();
         this.loadedUserData = await api.getBuildTypesByType("Provisioner");
         this.setState({
@@ -130,7 +132,11 @@ class CreateSGModalComponent extends React.Component<{}, ICreateSGState> {
 
     public handleUserDataChange = async (event: any, data: any) => {
         const userDataId = data.value;
-        const userData = await this.loadUserData(userDataId);
+        let userData = await this.loadUserData(userDataId);
+        if (this.state.PhoneHome) {
+            const phoneHomeUserData = await api.getPhoneHomeUserData();
+            userData += phoneHomeUserData.userdata;
+        }
         this.setState({
             SelectedUserData: userDataId,
             UserData: userData

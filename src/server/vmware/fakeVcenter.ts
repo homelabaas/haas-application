@@ -22,7 +22,7 @@ export class FakeVCenter implements IVcenter {
     public ReconfigureVMByMob(vm: vspherevim.vimService.vim.ManagedObjectReference,
                               configSettings: IGuestinfoConfigSetting[],
                               numCPUs: number,
-                              memoryMB: number){
+                              memoryMB: number) {
         return;
     }
 
@@ -34,7 +34,12 @@ export class FakeVCenter implements IVcenter {
         return;
 
     }
+
     public async GetHostById(hostId: string): Promise<any> {
+        throw new Error("Method not implemented.");
+    }
+
+    public async GetClusterById(clusterId: string): Promise<any> {
         throw new Error("Method not implemented.");
     }
 
