@@ -1,7 +1,5 @@
 import * as ip from "ip";
-import * as xmldom from "xmldom";
 import * as vsphere from "../vmwarelibs/package/dist/vsphere.js";
-import * as vspherecis from "./definitions/vspherecis";
 import * as vspherests from "./definitions/vspherests";
 import * as vspherevim from "./definitions/vspherevim";
 import { IGuestinfoConfigSetting } from "./IGuestinfoConfigSetting";
@@ -12,7 +10,6 @@ export class VMWare implements IVcenter {
     public UserSession: vspherevim.vimService.vim.UserSession;
 
     public Host: string;
-    public cisService: vspherecis.cisService;
     public vimService: vspherevim.vimService;
     public stsService: vspherests.stsService;
     public samlToken: any;
@@ -20,30 +17,17 @@ export class VMWare implements IVcenter {
     /** Connect to a vcenter server. */
     public async Connect(hostname: string, username: string, password: string): Promise<void> {
         this.Host = hostname;
-        this.cisService = await vsphere.cisService(hostname);
         this.stsService = await vsphere.stsService(hostname);
         this.vimService = await vsphere.vimService(hostname);
         this.samlToken = await this.issueToken(this.stsService, username, password);
         const handler: any = this.appendToken.bind(null, this.stsService, this.samlToken);
-        this.vimService.addHandler(handler);
-        this.UserSession = await this.vimService.vimPort.loginByToken(
-            this.vimService.serviceContent.sessionManager, null);
-        this.vimService.removeHandler(handler);
-        this.cisService.setSecurityContext({
-            samlToken: new xmldom.XMLSerializer().serializeToString(this.samlToken),
-            schemeId: this.cisService.vapi.std.AuthenticationScheme.SAML_BEARER_TOKEN,
-        });
-        const sessionId: string = await this.cisService.cis.session.create();
-        this.cisService.setSecurityContext({
-            schemeId: this.cisService.vapi.std.AuthenticationScheme.SESSION_ID,
-            sessionId,
-        });
+        this.UserSession = await this.vimService.vimPort.login(this.vimService.serviceContent.sessionManager,
+            username, password, null);
         this.SessionManager = this.vimService.serviceContent.sessionManager;
     }
 
     public async Disconnect(): Promise<void> {
         await this.vimService.vimPort.logout(this.vimService.serviceContent.sessionManager);
-        await this.cisService.cis.session.delete();
     }
 
     public async ReconfigureVMByMob(vm: vspherevim.vimService.vim.ManagedObjectReference,
@@ -592,8 +576,8 @@ export class VMWare implements IVcenter {
                 }),
             }),
             Renewing: wst13.RenewingType({
-                Allow: false,
-                OK: false,
+                Allow: true,
+                OK: true,
             }),
             RequestType: wst13.RequestTypeOpenEnum
             ["http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue"],

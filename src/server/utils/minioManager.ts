@@ -32,7 +32,7 @@ export class MinioManager {
         this.MinioClient = new Client({
                 endPoint: settings.Address,
                 port: +settings.Port,
-                secure: (settings.Secure === "true"),
+                useSSL: (settings.Secure === "true"),
                 accessKey: settings.AccessKey,
                 secretKey: settings.SecretKey
             });
