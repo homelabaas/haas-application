@@ -15,11 +15,12 @@ export function sequelize(connectionString: string, logfilePath: string) {
             seq.createStream({serverUrl: config.get("Logfiles.SeqUrl")})
         ]
     });
-    return new Sequelize({
-        url: connectionString,
-        modelPaths: [path.join(__dirname,  "models")],
-        logging: (str) => {
-            sqlLogger.info(str);
-        }
-    });
+    return new Sequelize(
+        connectionString,
+        {
+            modelPaths: [path.join(__dirname,  "models")],
+            logging: (str) => {
+                sqlLogger.info(str);
+            }
+        });
 }

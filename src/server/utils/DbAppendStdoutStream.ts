@@ -20,7 +20,7 @@ export class DbAppendStdoutStream extends Writable {
         const artifact = this.parsePackerOutputLine(typedChunk.Text);
         if (artifact) {
             const resourceId = await Dependencies().VCenter.GetVMIdByName(artifact);
-            await Artifact.insertOrUpdate({
+            await Artifact.upsert({
                 PackerBuildId: typedChunk.PackerBuildId,
                 Name: artifact,
                 Type: "VirtualMachine",

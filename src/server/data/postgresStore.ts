@@ -66,7 +66,7 @@ export class PostgresStore {
     }
 
     public GetEnvironment = async (id: number): Promise<Environment> => {
-        return await Environment.findById(id);
+        return await Environment.findByPk(id);
     }
 
     public SaveEnvironment = async (environment: Environment): Promise<Environment> => {
@@ -84,7 +84,7 @@ export class PostgresStore {
     }
 
     public GetSG = async (id: number): Promise<ScalingGroup> => {
-        return await ScalingGroup.findById(id);
+        return await ScalingGroup.findByPk(id);
     }
 
     public CreateNewSG = async (sg: IScalingGroup) => {
@@ -122,7 +122,7 @@ export class PostgresStore {
             where: {
                 Status: VirtualMachineStatus.Terminated,
                 TerminateDateTime: {
-                    $lt: maxDateTime.toDate()
+                    [Op.lt]: maxDateTime.toDate()
                 }
             }
         });
@@ -141,7 +141,7 @@ export class PostgresStore {
     }
 
     public GetVM = async (id: number): Promise<VirtualMachine> => {
-        return await VirtualMachine.findById(id);
+        return await VirtualMachine.findByPk(id);
     }
 
     public CreateNewVM = async (vm: IVirtualMachine) => {
@@ -155,7 +155,7 @@ export class PostgresStore {
     }
 
     public GetVMSpec = async (id: number): Promise<IVMSpec> => {
-        return await VMSpec.findById(id);
+        return await VMSpec.findByPk(id);
     }
 
     public GetVMSpecByName = async (name: string): Promise<IVMSpec> => {
@@ -173,7 +173,7 @@ export class PostgresStore {
     }
 
     public GetNetworkIPAssignment = async (ip: string) => {
-        return await NetworkIPAssignment.findById(ip);
+        return await NetworkIPAssignment.findByPk(ip);
     }
 
     public SaveNetworkIPAssignment = async (networkIpAssignment: NetworkIPAssignment) => {
@@ -200,7 +200,7 @@ export class PostgresStore {
     }
 
     public GetNetworkSegment = async (networkSegmentId: number): Promise<NetworkSegment> => {
-        const returnNetworkSegment = await NetworkSegment.findById(networkSegmentId, {
+        const returnNetworkSegment = await NetworkSegment.findByPk(networkSegmentId, {
             include: [ {
                 model: NetworkIPAssignment,
                 include: [ VirtualMachine ]
@@ -262,7 +262,7 @@ export class PostgresStore {
     }
 
     public GetArtifactById = async (artifactId: number): Promise<IArtifact> => {
-        return await Artifact.findById(artifactId);
+        return await Artifact.findByPk(artifactId);
     }
 
     public SaveArtifact = async (artifact: IArtifact): Promise<IArtifact> => {
@@ -305,7 +305,7 @@ export class PostgresStore {
     }
 
     public GetBuild = async (key: number): Promise<PackerBuild> => {
-        return await PackerBuild.findById(key, {
+        return await PackerBuild.findByPk(key, {
             include: [ Artifact, PackerBuildConfig ]
         });
     }
@@ -326,7 +326,7 @@ export class PostgresStore {
     }
 
     public GetBuildConfig = async (id: number): Promise<PackerBuildConfig> => {
-        const buildConfig = await PackerBuildConfig.findById(id);
+        const buildConfig = await PackerBuildConfig.findByPk(id);
         return buildConfig;
     }
 
@@ -364,7 +364,7 @@ export class PostgresStore {
     }
 
     public SetEnvironmentSetting = async (environmentName: string, setting: string, value: string) => {
-        await EnvironmentSetting.insertOrUpdate({
+        await EnvironmentSetting.upsert({
             EnvironmentName: environmentName,
             Key: setting,
             Value: value
@@ -375,7 +375,7 @@ export class PostgresStore {
         const keys = Object.keys(settingsObject);
         for (const key of keys) {
             const value = settingsObject[key];
-            const settingsObjectSave = await Settings.insertOrUpdate({
+            const settingsObjectSave = await Settings.upsert({
                 Group: settingsKey,
                 Key: key,
                 Value: value
@@ -397,7 +397,7 @@ export class PostgresStore {
     }
 
     public GetBuildType = async (buildTypeId: string): Promise<IBuildType> => {
-        const builderDefinition = await BuilderDefinition.findById(buildTypeId);
+        const builderDefinition = await BuilderDefinition.findByPk(buildTypeId);
         return builderDefinition;
     }
 
@@ -425,12 +425,12 @@ export class PostgresStore {
     }
 
     public DeleteBuildType = async (filePath: string) => {
-        const buildTypeToDelete = await BuilderDefinition.findById(filePath);
+        const buildTypeToDelete = await BuilderDefinition.findByPk(filePath);
         await buildTypeToDelete.destroy();
     }
 
     public InsertOrUpdateBuildType = async (buildType: IBuildType) => {
-        BuilderDefinition.insertOrUpdate({
+        BuilderDefinition.upsert({
             Id: buildType.Id,
             File: buildType.File,
             Name: buildType.Name,
