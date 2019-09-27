@@ -20,7 +20,7 @@ class LandingPageComponent extends React.Component<{}, ILandingPageState> {
                 MinioBucketExists: false,
                 MinioConnected: false,
                 BuilderThreadRunning: false,
-                PowerDNS: false,
+                MiniDNS: false,
                 PostgresConnected: false,
                 VmProvisionManager: false,
                 EnvironmentManager: false,
@@ -42,7 +42,7 @@ class LandingPageComponent extends React.Component<{}, ILandingPageState> {
         const status = props.status as IStatus;
         const showMessage = !status.VcenterConnected || !status.DockerConnected ||
             !status.PostgresConnected || !status.MinioConnected || !status.MinioBucketExists
-            || !status.PowerDNS;
+            || !status.MiniDNS;
         if (showMessage) {
             return <Link to="/settings"><Message warning>
                         <Message.Content>

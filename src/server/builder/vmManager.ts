@@ -14,7 +14,6 @@ import { IGuestinfoConfigSetting } from "../vmware/IGuestinfoConfigSetting";
 import { NetworkConfiguration } from "./networkConfiguration";
 import { PhoneHomeTaskLookups } from "./phoneHomeTaskLookup";
 
-
 export class VmManager {
 
     public SocketManager: SocketManager;
@@ -152,13 +151,18 @@ export class VmManager {
     private setDnsEntry = async (vmId: number) => {
         const vm = await this.PostgresStore.GetVM(vmId);
         try {
-            if (Dependencies().ServerStatus.PowerDNS) {
+            if (Dependencies().ServerStatus.MiniDNS) {
                 await this.LogEventInfo("Creating DNS A Record", vmId);
                 this.Logger.info({VmId: vmId,
-                    domain: Dependencies().Settings.PowerDnsSettings.defaultDomain,
+                    domain: Dependencies().Settings.MiniDnsSettings.defaultDomain,
                     ip: vm.NetworkIPAssignmentId}, "Add new DNS");
-                await Dependencies().PowerDNS.updateZoneSimple(Dependencies().Settings.PowerDnsSettings.defaultDomain,
-                    "A", vm.MachineName, vm.NetworkIPAssignmentId);
+                await Dependencies().MiniDNS.addRecordForZoneId(
+                        Dependencies().Settings.MiniDnsSettings.defaultDomain,
+                        {
+                            address: vm.NetworkIPAssignmentId,
+                            name: vm.MachineName,
+                            recordtype: "A"
+                        });
             }
         } catch (e) {
             await this.LogEventWarning("Problem creating DNS entry: " + e.message, vmId);
@@ -168,13 +172,18 @@ export class VmManager {
     private removeDnsEntry = async (vmId: number) => {
         const vm = await this.PostgresStore.GetVM(vmId);
         try {
-            if (Dependencies().ServerStatus.PowerDNS) {
+            if (Dependencies().ServerStatus.MiniDNS) {
                 await this.LogEventInfo("Removing DNS A Record", vmId);
                 this.Logger.info({VmId: vmId,
-                    domain: Dependencies().Settings.PowerDnsSettings.defaultDomain,
+                    domain: Dependencies().Settings.MiniDnsSettings.defaultDomain,
                     ip: vm.NetworkIPAssignmentId}, "Remove DNS");
-                await Dependencies().PowerDNS.removeZoneSimple(Dependencies().Settings.PowerDnsSettings.defaultDomain,
-                    "A", vm.MachineName, vm.NetworkIPAssignmentId);
+                await Dependencies().MiniDNS.deleteRecordForZoneId(
+                    Dependencies().Settings.MiniDnsSettings.defaultDomain,
+                    {
+                        address: vm.NetworkIPAssignmentId,
+                        name: vm.MachineName,
+                        recordtype: "A"
+                    });
             }
         } catch (e) {
             await this.LogEventWarning("Problem removing DNS entry: " + e.message, vmId);

@@ -4,8 +4,8 @@ import * as Docker from "dockerode";
 import * as http from "http";
 import * as pg from "pg";
 import { IApplicationSettings } from "../common/models/IApplicationSettings";
+import { IMiniDNSSettings } from "../common/models/IMiniDNSSettings";
 import { IMinioSettings } from "../common/models/IMinioSettings";
-import { IPowerDnsSettings } from "../common/models/IPowerDnsSettings";
 import { IStatus } from "../common/models/IStatus";
 import { IVCenterSettings } from "../common/models/IVcenterSettings";
 import { BuildThread, IBuildContainerDefinition } from "./builder/buildThread";
@@ -17,9 +17,7 @@ import { VmProvisionMonitor } from "./builder/vmProvisionMonitor";
 import { VmTerminateMonitor } from "./builder/vmTerminateMonitor";
 import { sequelize } from "./data";
 import { PostgresStore } from "./data/postgresStore";
-import { FakePowerdns } from "./dns/FakePowerdns";
-import { IPowerDNS } from "./dns/IPowerDns";
-import { PowerDNS } from "./dns/powerdns";
+import { DefaultApi, Zone } from "./dns/api";
 import { isTestApiMode } from "./runtimeModes";
 import { SocketManager } from "./socketio/socketManager";
 import { MinioManager } from "./utils/minioManager";
@@ -29,7 +27,7 @@ import { VMWare } from "./vmware/vmware";
 
 export interface ISettings {
     VCenterSettings?: IVCenterSettings;
-    PowerDnsSettings?: IPowerDnsSettings;
+    MiniDnsSettings?: IMiniDNSSettings;
     ApplicationSettings?: IApplicationSettings;
     MinioSettings?: IMinioSettings;
 }
@@ -41,7 +39,7 @@ export interface IDockerAuth {
 }
 
 const VCenterSettingsKey: string = "vcenter";
-const PowerDNSSettingsKey: string = "powerdns";
+const MiniDNSSettingsKey: string = "minidns";
 const ApplicationSettingsKey: string = "application";
 const MinioSettingsKey: string = "minio";
 
@@ -63,9 +61,9 @@ class DependencyManager {
     public Logger: bunyan;
     public DockerAuth: IDockerAuth;
     public Minio: MinioManager;
-    public PowerDNS: IPowerDNS;
     public SgMonitor: SgMonitor;
     public FirstRun: boolean;
+    public MiniDNS: DefaultApi;
 
     public Initialise = async (server: http.Server,
                                logger: bunyan,
@@ -81,7 +79,7 @@ class DependencyManager {
             MinioBucketExists: false,
             MinioConnected: false,
             BuilderThreadRunning: false,
-            PowerDNS: false,
+            MiniDNS: false,
             PostgresConnected: false,
             VmProvisionManager: false,
             VmTerminateManager: false,
@@ -103,21 +101,21 @@ class DependencyManager {
 
         if (this.ServerStatus.PostgresConnected) {
             const vcenterSettings = await this.PostgresStore.GetSettings(VCenterSettingsKey) as IVCenterSettings;
-            const powerDnsSettings = await this.PostgresStore.GetSettings(PowerDNSSettingsKey) as IPowerDnsSettings;
+            const miniDnsSettings = await this.PostgresStore.GetSettings(MiniDNSSettingsKey) as IMiniDNSSettings;
             const applicationSettings = await
                 this.PostgresStore.GetSettings(ApplicationSettingsKey) as IApplicationSettings;
             const minioSettings = await this.PostgresStore.GetSettings(MinioSettingsKey) as IMinioSettings;
             this.Settings = {
                 VCenterSettings: vcenterSettings,
-                PowerDnsSettings: powerDnsSettings,
+                MiniDnsSettings: miniDnsSettings,
                 ApplicationSettings: applicationSettings,
                 MinioSettings: minioSettings
             };
             if (vcenterSettings) {
                 await this.InitVCenter(vcenterSettings);
             }
-            if (powerDnsSettings) {
-                await this.InitPowerDNS(powerDnsSettings);
+            if (miniDnsSettings) {
+                await this.InitMiniDNS(miniDnsSettings);
             }
             if (minioSettings) {
                 await this.InitMinio(minioSettings);
@@ -151,8 +149,8 @@ class DependencyManager {
         this.Settings.MinioSettings = minioSettings;
     }
 
-    public SetPowerDnsSettings = async (powerDnsSettings: IPowerDnsSettings) => {
-        this.Settings.PowerDnsSettings = powerDnsSettings;
+    public SetMiniDnsSettings = async (miniDnsSettings: IMiniDNSSettings) => {
+        this.Settings.MiniDnsSettings = miniDnsSettings;
     }
 
     public SetApplicationSettings = async (applicationSettings: IApplicationSettings) => {
@@ -163,19 +161,30 @@ class DependencyManager {
         return this.ServerStatus;
     }
 
-    public InitPowerDNS = async (powerDnsSettings: IPowerDnsSettings, rethrowException: boolean = false) => {
+    public InitMiniDNS = async (miniDnsSettings: IMiniDNSSettings, rethrowException: boolean = false) => {
         try {
-            if (isTestApiMode) {
-                this.PowerDNS = new FakePowerdns(powerDnsSettings.Url, powerDnsSettings.APIKey);
-            } else {
-                this.PowerDNS = new PowerDNS(powerDnsSettings.Url, powerDnsSettings.APIKey);
+            // Attempt to connect and call
+            this.MiniDNS = new DefaultApi(miniDnsSettings.url);
+            let foundDomain = false;
+            const { response, body } = await this.MiniDNS.getAllZones();
+            (body as Zone[]).forEach((p) => {
+                if (p.name === miniDnsSettings.defaultDomain) {
+                    foundDomain = true;
+                }
+            });
+            if (!foundDomain) {
+                await this.MiniDNS.addZone({
+                    TTL: 60,
+                    adminEmail: "test@test.com",
+                    name: miniDnsSettings.defaultDomain,
+                    nsaddress: miniDnsSettings.address
+                });
             }
-            const zoneList = await this.PowerDNS.getZones();
-            this.ServerStatus.PowerDNS = true;
+            this.ServerStatus.MiniDNS = true;
         } catch (err) {
-            this.Logger.error("Error connecting to PowerDNS.");
+            this.Logger.error("Error connecting to MiniDNS.");
             this.Logger.error(err);
-            this.ServerStatus.PowerDNS = false;
+            this.ServerStatus.MiniDNS = false;
             if (rethrowException) {
                 throw err;
             }

@@ -6,20 +6,20 @@ import { MessageDisplay } from "../common/MessageDisplay";
 import { ConnectButton } from "./ConnectButton";
 import { TextField } from "./TextField";
 import { IVCenterSettings } from "../../../common/models/IVcenterSettings";
-import { IPowerDnsSettings } from "../../../common/models/IPowerDnsSettings";
+import { IMiniDNSSettings } from "../../../common/models/IMiniDNSSettings";
 import { IApplicationSettings } from "../../../common/models/IApplicationSettings";
 import { IMinioSettingsPost } from "../../../common/models/IMinioSettingsPost";
 
 interface ISettingsPageState {
     vcenterSettings: IVCenterSettings;
-    powerDnsSettings: IPowerDnsSettings;
+    miniDnsSettings: IMiniDNSSettings;
     applicationSettings: IApplicationSettings;
     minioSettings: IMinioSettingsPost;
     vcenterIsConnected: boolean;
     vcentermessageState: string;
     vcentermessage: string;
-    powerdnsmessageState: string;
-    powerdnsmessage: string;
+    minidnsmessageState: string;
+    minidnsmessage: string;
     applicationmessageState: string;
     applicationmessage: string;
     miniomessageState: string;
@@ -37,10 +37,10 @@ class SettingsPageComponent extends React.Component<{}, ISettingsPageState> {
                 URL: "",
                 Username: ""
             },
-            powerDnsSettings: {
-                APIKey: "",
+            miniDnsSettings: {
+                address: "",
                 defaultDomain: "",
-                Url: ""
+                url: ""
             },
             applicationSettings: {
                 URL: ""
@@ -54,8 +54,8 @@ class SettingsPageComponent extends React.Component<{}, ISettingsPageState> {
             vcenterIsConnected: false,
             vcentermessageState: "",
             vcentermessage: "",
-            powerdnsmessageState: "",
-            powerdnsmessage: "",
+            minidnsmessageState: "",
+            minidnsmessage: "",
             applicationmessageState: "",
             applicationmessage: "",
             miniomessageState: "",
@@ -66,13 +66,13 @@ class SettingsPageComponent extends React.Component<{}, ISettingsPageState> {
     public async componentDidMount() {
         const apiStatus = await api.getStatus();
         const vcenterSettings = await api.getVCenterSettings();
-        const powerDnsSettings = await api.getPowerDnsSettings();
+        const miniDnsSettings = await api.getMiniDnsSettings();
         const applicationSettings = await api.getApplicationSettings();
         const minioSettings = await api.getMinioSettings();
         this.setState({
             vcenterIsConnected: apiStatus.VcenterConnected,
             vcenterSettings,
-            powerDnsSettings,
+            miniDnsSettings,
             applicationSettings,
             minioSettings
         });
@@ -111,17 +111,17 @@ class SettingsPageComponent extends React.Component<{}, ISettingsPageState> {
         }
     }
 
-    public clickSavePowerDns = async (event: React.MouseEvent<HTMLElement>) => {
-        const returnStatus = await api.postPowerDnsSettings(this.state.powerDnsSettings);
+    public clickSaveMiniDns = async (event: React.MouseEvent<HTMLElement>) => {
+        const returnStatus = await api.postMiniDnsSettings(this.state.miniDnsSettings);
         if (returnStatus.Success) {
             this.setState({
-                powerdnsmessage: "Successfully connected to Power DNS.",
-                powerdnsmessageState: "ok"
+                minidnsmessage: "Successfully connected to Mini DNS.",
+                minidnsmessageState: "ok"
             });
         } else {
             this.setState({
-                powerdnsmessage: returnStatus.Message,
-                powerdnsmessageState: "error"
+                minidnsmessage: returnStatus.Message,
+                minidnsmessageState: "error"
             });
         }
     }
@@ -190,27 +190,27 @@ class SettingsPageComponent extends React.Component<{}, ISettingsPageState> {
         });
     }
 
-    public handlePowerDnsUrlChange = (event: any) => {
-        const newPowerDnsSettings = {...this.state.powerDnsSettings};
-        newPowerDnsSettings.Url = event.target.value;
+    public handleMiniDnsUrlChange = (event: any) => {
+        const newMiniDnsSettings = {...this.state.miniDnsSettings};
+        newMiniDnsSettings.url = event.target.value;
         this.setState({
-            powerDnsSettings: newPowerDnsSettings
+            miniDnsSettings: newMiniDnsSettings
         });
     }
 
-    public handlePowerDnsApiKeyChange = (event: any) => {
-        const newPowerDnsSettings = {...this.state.powerDnsSettings};
-        newPowerDnsSettings.APIKey = event.target.value;
+    public handleMiniDnsAddressChange = (event: any) => {
+        const newMiniDnsSettings = {...this.state.miniDnsSettings};
+        newMiniDnsSettings.address = event.target.value;
         this.setState({
-            powerDnsSettings: newPowerDnsSettings
+            miniDnsSettings: newMiniDnsSettings
         });
     }
 
-    public handlePowerDnsDefaultChange = (event: any) => {
-        const newPowerDnsSettings = {...this.state.powerDnsSettings};
-        newPowerDnsSettings.defaultDomain = event.target.value;
+    public handleMiniDnsDefaultChange = (event: any) => {
+        const newMiniDnsSettings = {...this.state.miniDnsSettings};
+        newMiniDnsSettings.defaultDomain = event.target.value;
         this.setState({
-            powerDnsSettings: newPowerDnsSettings
+            miniDnsSettings: newMiniDnsSettings
         });
     }
 
@@ -289,25 +289,25 @@ class SettingsPageComponent extends React.Component<{}, ISettingsPageState> {
                 </Form>
                 <br />
                 <Form>
-                    <h4 className="ui dividing header">Power DNS</h4>
+                    <h4 className="ui dividing header">Mini DNS</h4>
                     <div>
-                        <Input label="URL" value={this.state.powerDnsSettings.Url}
-                            onChange={this.handlePowerDnsUrlChange} placeholder="PowerDNS URL" />
+                        <Input label="API URL" value={this.state.miniDnsSettings.url}
+                            onChange={this.handleMiniDnsUrlChange} placeholder="Mini DNS API URL" />
                     </div>
                     <br />
                     <div>
-                    <Input label="API Key" value={this.state.powerDnsSettings.APIKey}
-                        onChange={this.handlePowerDnsApiKeyChange} placeholder="API Key" />
+                    <Input label="DNS IP Address" value={this.state.miniDnsSettings.address}
+                        onChange={this.handleMiniDnsAddressChange} placeholder="IP Address" />
                     </div>
                     <br />
                     <div>
-                    <Input label="Default Domain" value={this.state.powerDnsSettings.defaultDomain}
-                        onChange={this.handlePowerDnsDefaultChange} placeholder="Default Domain" />
+                    <Input label="Default Domain" value={this.state.miniDnsSettings.defaultDomain}
+                        onChange={this.handleMiniDnsDefaultChange} placeholder="Default Domain" />
                     </div>
                     <br />
-                    <Button onClick={this.clickSavePowerDns}>Save</Button>
-                    <MessageDisplay messageState={this.state.powerdnsmessageState}
-                        message={this.state.powerdnsmessage} />
+                    <Button onClick={this.clickSaveMiniDns}>Save</Button>
+                    <MessageDisplay messageState={this.state.minidnsmessageState}
+                        message={this.state.minidnsmessage} />
                 </Form>                <br />
                 <Form>
                     <h4 className="ui dividing header">Minio</h4>

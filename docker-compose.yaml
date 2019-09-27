@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.7"
 
 services:
   seq:
@@ -25,3 +25,9 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: devpostgrespwd
+  dnsapi:
+    container_name: dns-api
+    image: homelabaas/dns-api
+    ports:
+      - "8086:80"
+      - "53:53/udp"

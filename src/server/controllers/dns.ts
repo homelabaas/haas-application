@@ -9,9 +9,13 @@ router.post("/", async (req: Request, res: Response) => {
     const machineRegister: IRegisterMachineDns = req.body as IRegisterMachineDns;
 
     try {
-        if (Dependencies().ServerStatus.PowerDNS) {
-            await Dependencies().PowerDNS.updateZoneSimple(Dependencies().Settings.PowerDnsSettings.defaultDomain,
-                "A", machineRegister.name, machineRegister.ip);
+        if (Dependencies().ServerStatus.MiniDNS) {
+            const domain = Dependencies().Settings.MiniDnsSettings.defaultDomain;
+            await Dependencies().MiniDNS.addRecordForZoneId(domain, {
+                address: machineRegister.ip,
+                name: machineRegister.name,
+                recordtype: "A"
+            });
             const returnValue: IGenericReturn = {
                 Success: true,
                 Message: ""
@@ -20,7 +24,7 @@ router.post("/", async (req: Request, res: Response) => {
         } else {
             const returnValue: IGenericReturn = {
                 Success: false,
-                Message: "PowerDNS is not connected."
+                Message: "MiniDNS is not connected."
             };
             res.json(returnValue);
         }

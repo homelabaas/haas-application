@@ -4,7 +4,7 @@ export interface IStatus {
     DockerRegistryAuth: boolean;
     MinioConnected: boolean;
     MinioBucketExists: boolean;
-    PowerDNS: boolean;
+    MiniDNS: boolean;
     BuilderThreadRunning: boolean;
     PostgresConnected: boolean;
     VmProvisionManager: boolean;

@@ -19,9 +19,9 @@ import { IEnvironmentDefinition } from "./../../common/models/IEnvironmentDefini
 import { IFileForDatastore } from "./../../common/models/IFileForDatastore";
 import { IGenericReturn } from "./../../common/models/IGenericReturn";
 import { IHostDetails } from "./../../common/models/IHostDetails";
+import { IMiniDNSSettings } from "./../../common/models/IMiniDNSSettings";
 import { IPhoneHomeUserData } from "./../../common/models/IPhoneHomeUserData";
 import { IPopulateNetworkRequest } from "./../../common/models/IPopulateNetworkRequest";
-import { IPowerDnsSettings } from "./../../common/models/IPowerDnsSettings";
 import { IProvisionDetails } from "./../../common/models/IProvisionDetails";
 import { IProvisionTaskReturn } from "./../../common/models/IProvisionTaskReturn";
 import { IStatus } from "./../../common/models/IStatus";
@@ -39,9 +39,9 @@ export const getVCenterSettings = async (): Promise<IVCenterSettings> => {
     return returnValue.data as IVCenterSettings;
 };
 
-export const getPowerDnsSettings = async (): Promise<IPowerDnsSettings> => {
-    const returnValue = await axios.default.get(routeConstants.SettingsRouteUrl + "/powerdns");
-    return returnValue.data as IPowerDnsSettings;
+export const getMiniDnsSettings = async (): Promise<IMiniDNSSettings> => {
+    const returnValue = await axios.default.get(routeConstants.SettingsRouteUrl + "/minidns");
+    return returnValue.data as IMiniDNSSettings;
 };
 
 export const getMinioSettings = async (): Promise<IMinioSettingsPost> => {
@@ -69,8 +69,8 @@ export const postVCenterSettings = async (settings: IVCenterSettings) => {
     return returnValue.data as IGenericReturn;
 };
 
-export const postPowerDnsSettings = async (settings: IPowerDnsSettings) => {
-    const returnValue = await axios.default.post(routeConstants.SettingsRouteUrl + "/powerdns", settings);
+export const postMiniDnsSettings = async (settings: IMiniDNSSettings) => {
+    const returnValue = await axios.default.post(routeConstants.SettingsRouteUrl + "/minidns", settings);
     return returnValue.data as IGenericReturn;
 };
 

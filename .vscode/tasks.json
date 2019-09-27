@@ -16,7 +16,7 @@
         },
         {
             "type": "typescript",
-            "tsconfig": "src\\server\\tsconfig.json",
+            "tsconfig": "src/server/tsconfig.json",
             "label": "Build",
             "problemMatcher": [
                 "$tsc"

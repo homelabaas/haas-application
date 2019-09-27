@@ -20,7 +20,7 @@ class StatusPageComponent extends React.Component<{}, IStatusPageState> {
                 MinioBucketExists: false,
                 MinioConnected: false,
                 BuilderThreadRunning: false,
-                PowerDNS: false,
+                MiniDNS: false,
                 PostgresConnected: false,
                 VmProvisionManager: false,
                 EnvironmentManager: false,
@@ -55,7 +55,7 @@ class StatusPageComponent extends React.Component<{}, IStatusPageState> {
                 <p>VCenter: <this.HealthDisplay isOK={this.state.status.VcenterConnected} /></p>
                 <p>Minio: <this.HealthDisplay isOK={this.state.status.MinioConnected} /></p>
                 <p>Minio Content Bucket: <this.HealthDisplay isOK={this.state.status.MinioBucketExists} /></p>
-                <p>PowerDNS: <this.HealthDisplay isOK={this.state.status.PowerDNS} /></p>
+                <p>MiniDNS: <this.HealthDisplay isOK={this.state.status.MiniDNS} /></p>
                 <h2>Background Monitors</h2>
                 <p>VM Builder: <this.HealthDisplay isOK={this.state.status.BuilderThreadRunning} /></p>
                 <p>VM Provisioner: <this.HealthDisplay isOK={this.state.status.VmProvisionManager} /></p>

@@ -3,15 +3,15 @@ import { URL } from "url";
 import { Dependencies } from "../dependencyManager";
 import { IApplicationSettings } from "./../../common/models/IApplicationSettings";
 import { IGenericReturn } from "./../../common/models/IGenericReturn";
+import { IMiniDNSSettings } from "./../../common/models/IMiniDNSSettings";
 import { IMinioSettings } from "./../../common/models/IMinioSettings";
 import { IMinioSettingsPost } from "./../../common/models/IMinioSettingsPost";
-import { IPowerDnsSettings } from "./../../common/models/IPowerDnsSettings";
 import { IVCenterSettings } from "./../../common/models/IVcenterSettings";
 
 const router: Router = Router();
 
-router.get("/powerdns", async (req: Request, res: Response) => {
-    const settings = await Dependencies().PostgresStore.GetSettings("powerdns");
+router.get("/minidns", async (req: Request, res: Response) => {
+    const settings = await Dependencies().PostgresStore.GetSettings("minidns");
     if (settings) {
         res.json(settings);
     } else {
@@ -106,12 +106,12 @@ router.post("/application", async (req: Request, res: Response) => {
     }
 });
 
-router.post("/powerdns", async (req: Request, res: Response) => {
-    const postSettings: IPowerDnsSettings = req.body as IPowerDnsSettings;
+router.post("/minidns", async (req: Request, res: Response) => {
+    const postSettings: IMiniDNSSettings = req.body as IMiniDNSSettings;
     try {
-        await Dependencies().PostgresStore.SetSettings("powerdns", postSettings);
-        await Dependencies().SetPowerDnsSettings(postSettings);
-        await Dependencies().InitPowerDNS(postSettings, true);
+        await Dependencies().PostgresStore.SetSettings("minidns", postSettings);
+        await Dependencies().SetMiniDnsSettings(postSettings);
+        await Dependencies().InitMiniDNS(postSettings, true);
         const returnValue: IGenericReturn = {
             Success: true,
             Message: "Validated"
