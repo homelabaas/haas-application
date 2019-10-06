@@ -38,6 +38,7 @@ class NetworkSegmentEditPageComponent extends React.Component<IProps, IEditNetwo
     constructor(props: any) {
         super(props);
         this.state = {
+            Id: null,
             Name: "",
             StartIP: "",
             EndIP: "",
@@ -57,13 +58,14 @@ class NetworkSegmentEditPageComponent extends React.Component<IProps, IEditNetwo
         } else {
             const loadNetworkSegment = await api.getNetworkSegment(id);
             this.setState({
-                Name: "",
-                StartIP: "",
-                EndIP: "",
-                SubnetMask: "",
-                DNS1: "",
-                DNS2: "",
-                Gateway: "",
+                Id: loadNetworkSegment.Id,
+                Name: loadNetworkSegment.Name,
+                StartIP: loadNetworkSegment.StartIP,
+                EndIP: loadNetworkSegment.EndIP,
+                SubnetMask: loadNetworkSegment.SubnetMask,
+                DNS1: loadNetworkSegment.DNS1,
+                DNS2: loadNetworkSegment.DNS2,
+                Gateway: loadNetworkSegment.Gateway,
                 Message: "",
                 MessageState: ""
             });
@@ -95,13 +97,13 @@ class NetworkSegmentEditPageComponent extends React.Component<IProps, IEditNetwo
         if (returnStatus.Success) {
             if (returnStatus.NewId) {
                 this.setState({
-                    Message: "Successfully saved Build Config.",
+                    Message: "Successfully saved Network Segment.",
                     MessageState: "ok",
                     Id: returnStatus.NewId
                 });
             } else {
                 this.setState({
-                    Message: "Successfully saved Build Config.",
+                    Message: "Successfully saved Network Segment.",
                     MessageState: "ok"
                 });
             }

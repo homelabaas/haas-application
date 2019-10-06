@@ -29,7 +29,7 @@ class NetworkPageComponent extends React.Component<{}, INetworkPageState> {
     public ListSegments = (props: any) => {
         const builds = props.builds;
         const listItems = builds.map((networkSegment: INetworkSegment) => (
-        <List.Item>
+        <List.Item key={networkSegment.Id}>
             <List.Content>
                 <Link to={networkSegmentPageUrl(networkSegment.Id)}>
                     {networkSegment.Name}

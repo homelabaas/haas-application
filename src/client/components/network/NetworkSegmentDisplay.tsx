@@ -57,7 +57,7 @@ class NetworkSegmentDisplayPageComponent extends React.Component<IProps, IDispla
     public IPTable = (props: any) => {
         const IPs = props.IPs;
         const listItems = IPs.map((ip: INetworkIPAssignment) => (
-            <Table.Row>
+            <Table.Row key={ip.IP}>
                 <Table.Cell>{ip.IP}</Table.Cell>
                 <Table.Cell>{ip.VirtualMachine ? ip.VirtualMachine.MachineName : ""}</Table.Cell>
             </Table.Row>));
@@ -123,6 +123,7 @@ class NetworkSegmentDisplayPageComponent extends React.Component<IProps, IDispla
 
                 <Button as={Link} to={editNetworkSegmentPageUrl(this.state.DisplayNetworkSegment.Id)}>Edit</Button>
                 <Button onClick={this.ClickPopulate}>Populate</Button>
+                <Button>Delete</Button>
                 <h3 className="ui dividing header">IPs</h3>
                 <this.IPTable IPs={this.state.DisplayNetworkSegment.IPs} />
             </Container>
