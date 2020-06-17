@@ -32,7 +32,9 @@ function returnBuildList(builds: PackerBuild[]): IBuild[] {
 router.get("/", async (req: Request, res: Response) => {
     try {
         if (req.query.buildConfigId) {
-            const builds = await Dependencies().PostgresStore.GetBuildsByBuildConfigId(req.query.buildConfigId);
+            // tslint:disable-next-line: radix
+            const buildId = Number.parseInt(req.query.buildConfigId[0]);
+            const builds = await Dependencies().PostgresStore.GetBuildsByBuildConfigId(buildId);
             res.json(returnBuildList(builds));
         } else {
             const builds = await Dependencies().PostgresStore.GetBuilds();

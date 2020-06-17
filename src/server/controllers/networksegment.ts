@@ -36,6 +36,36 @@ router.get("/:id", async (req: Request, res: Response) => {
     }
 });
 
+router.delete("/:id", async (req: Request, res: Response) => {
+    const networkSegmentId = req.params.id;
+    try {
+        const networkSegment = await Dependencies().PostgresStore.GetNetworkSegment(networkSegmentId);
+        let hasAssignment = false;
+        for (let i = 0; i < networkSegment.IPs.length; i++) {
+            const ipAssignment = networkSegment.IPs[i];
+            if (ipAssignment.VirtualMachineId !== null) {
+                hasAssignment = true;
+            }
+        }
+        if (hasAssignment) {
+            throw new Error("A VM has an assigned address in this network segment.");
+        }
+        await Dependencies().PostgresStore.DeleteNetworkSegment(networkSegmentId);
+        const returnValue: IGenericReturn = {
+            Success: true,
+            Message: `Deleted network segment.`
+        };
+        res.json(returnValue);
+    } catch (err) {
+        const returnValue: IGenericReturn = {
+            Success: false,
+            Message: err.message
+        };
+        res.json(returnValue);
+    }
+});
+
+
 router.post("/populate", async (req: Request, res: Response) => {
     const populateRequest = req.body as IPopulateNetworkRequest;
     try {

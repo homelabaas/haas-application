@@ -1,19 +1,15 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "sourceMap": true,
-    "allowJs": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "rootDir": "..",
-    "outDir": "../../build"
-  },
-  "include": [
-    "./**/*",
-    "../webpack/**/*"
-  ]
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "sourceMap": true,
+        "allowJs": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "resolveJsonModule": true,
+        "typeRoots": ["node_modules/@types"],
+        "rootDir": "..",
+        "outDir": "../../build"
+    },
+    "include": ["./**/*", "../webpack/**/*"]
 }

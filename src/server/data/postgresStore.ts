@@ -210,6 +210,19 @@ export class PostgresStore {
         return returnNetworkSegment;
     }
 
+    public DeleteNetworkSegment = async (networkSegmentId: number): Promise<void> => {
+        await NetworkIPAssignment.destroy({
+            where: {
+                NetworkSegmentId: networkSegmentId
+            }
+        });
+        await NetworkSegment.destroy({
+            where: {
+                Id: networkSegmentId
+            }
+        });
+    }
+
     public GetArtifactsWithBuildByFeature = async (feature: string): Promise<IBuildAndArtifact[]> => {
         const artifacts = await Artifact.findAll({
             include: [ {

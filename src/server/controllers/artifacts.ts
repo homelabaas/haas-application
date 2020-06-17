@@ -9,7 +9,7 @@ router.get("/", async (req: Request, res: Response) => {
         if (req.query.type) {
             const artifactsWithBuilds = await Dependencies()
                 .PostgresStore
-                .GetArtifactsWithBuildByFeature(req.query.type);
+                .GetArtifactsWithBuildByFeature(req.query.type as string);
             res.json(artifactsWithBuilds);
         } else {
             const artifactsWithBuilds = await Dependencies().PostgresStore.GetArtifactsWithBuild();

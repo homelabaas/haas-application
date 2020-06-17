@@ -42,7 +42,7 @@ const logger = bunyan.createLogger({
         seq.createStream({serverUrl: config.get("Logfiles.SeqUrl")})
     ]
 });
-const server: http.Server = http.createServer(app.createApp(logfilePath));
+const server: http.Server = http.createServer(app.createApp(logfilePath, logger));
 
 function onError(error: NodeJS.ErrnoException): void {
     if (error.syscall !== "listen") {
