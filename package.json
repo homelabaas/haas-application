@@ -69,7 +69,7 @@
         "redux-thunk": "^2.3.0",
         "reflect-metadata": "^0.1.12",
         "request-promise-native": "^1.0.5",
-        "sanitize-html": "^1.18.2",
+        "sanitize-html": "^2.3.2",
         "semantic-ui-css": "^2.3.1",
         "semantic-ui-less": "^2.3.1",
         "semantic-ui-react": "^0.81.1",
