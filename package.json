@@ -78,7 +78,7 @@
         "serve-favicon": "^2.5.0",
         "socket.io": "^2.1.0",
         "ssh-exec": "^2.0.0",
-        "ssh2": "^0.6.0",
+        "ssh2": "^1.0.0",
         "tar-fs": "^1.16.2",
         "thread-loader": "^1.1.5",
         "tmp": "0.0.33",
