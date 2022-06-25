@@ -73,7 +73,7 @@
         "semantic-ui-css": "^2.3.1",
         "semantic-ui-less": "^2.3.1",
         "semantic-ui-react": "^0.81.1",
-        "sequelize": "^5.18.4",
+        "sequelize": "^6.19.1",
         "sequelize-typescript": "^1.0.0",
         "serve-favicon": "^2.5.0",
         "socket.io": "^2.1.0",
