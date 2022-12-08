@@ -40,7 +40,7 @@
         "config": "^1.30.0",
         "cross-env": "^5.1.4",
         "dockerode": "^2.5.5",
-        "express": "^4.16.3",
+        "express": "^4.17.3",
         "fork-ts-checker-notifier-webpack-plugin": "^1.0.2",
         "fork-ts-checker-webpack-plugin": "^1.5.0",
         "glob": "^7.1.2",
